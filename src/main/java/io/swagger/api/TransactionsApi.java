@@ -33,18 +33,22 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T12:23:27.162Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 @Validated
 public interface TransactionsApi {
 
     @Operation(summary = "Gets all transactions", description = "returns the transactions ", security = {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "transaction" })
     @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Returns all the transactions", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
+        @ApiResponse(responseCode = "200", description = "Returns all the transactions needed", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
         
-        @ApiResponse(responseCode = "401", description = "You are not authorised to run this"),
+        @ApiResponse(responseCode = "400", description = "Bad Request"),
         
-        @ApiResponse(responseCode = "404", description = "No transactions found") })
+        @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
+        
+        @ApiResponse(responseCode = "404", description = "No transactions found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/transactions",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
@@ -58,7 +62,11 @@ public interface TransactionsApi {
         
         @ApiResponse(responseCode = "400", description = "invalid input, object invalid"),
         
-        @ApiResponse(responseCode = "409", description = "Transaction already exists") })
+        @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
+        
+        @ApiResponse(responseCode = "404", description = "Not found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/transactions",
         produces = { "application/json" }, 
         consumes = { "application/json" }, 

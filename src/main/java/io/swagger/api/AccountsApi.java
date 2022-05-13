@@ -34,11 +34,11 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T12:23:27.162Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 @Validated
 public interface AccountsApi {
 
-    @Operation(summary = "Close account for a user", description = "By passing in the appropriate options, you can search for user data in the system ", security = {
+    @Operation(summary = "Close account for a user", description = "Delete a user", security = {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "employee" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "Account closed successfully"),
@@ -47,10 +47,12 @@ public interface AccountsApi {
         
         @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
         
-        @ApiResponse(responseCode = "404", description = "No account found with this IBAN") })
+        @ApiResponse(responseCode = "404", description = "No account found with this IBAN"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/accounts/{IBAN}",
         method = RequestMethod.DELETE)
-    ResponseEntity<Void> accountsIBANDelete(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "Account of the user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN);
+    ResponseEntity<Void> accountsIBANDelete(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN);
 
 
     @Operation(summary = "Search for account by IBAN", description = "By passing in the appropriate options, you can search for user data in the system ", security = {
@@ -62,23 +64,27 @@ public interface AccountsApi {
         
         @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
         
-        @ApiResponse(responseCode = "404", description = "User based on this IBAN is not found") })
+        @ApiResponse(responseCode = "404", description = "User based on this IBAN is not found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/accounts/{IBAN}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<Account> accountsIBANGet(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "Name of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN);
+    ResponseEntity<Account> accountsIBANGet(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN);
 
 
     @Operation(summary = "Gets all transactions of the account", description = "returns the transaction history ", security = {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "transaction" })
     @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Returns all the transactions", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
+        @ApiResponse(responseCode = "200", description = "Returns all the transactions needed", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
         
-        @ApiResponse(responseCode = "400", description = "Invalid IBAN format"),
+        @ApiResponse(responseCode = "400", description = "Bad Request"),
         
         @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
         
-        @ApiResponse(responseCode = "404", description = "No transactions for this IBAN found") })
+        @ApiResponse(responseCode = "404", description = "No transactions found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/accounts/{IBAN}/transactions",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
@@ -86,11 +92,17 @@ public interface AccountsApi {
 
 
     @Operation(summary = "Creates a new account", description = "Creates a new account. The Iban is being generated on the server.", security = {
-        @SecurityRequirement(name = "bearerAuth")    }, tags={ "employee" })
+        @SecurityRequirement(name = "bearerAuth")    }, tags={ "employee", "customer" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "201", description = "Account Created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Account.class))),
         
-        @ApiResponse(responseCode = "400", description = "invalid input, object invalid") })
+        @ApiResponse(responseCode = "400", description = "Invalid account object"),
+        
+        @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
+        
+        @ApiResponse(responseCode = "404", description = "invalid input, object invalid"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/accounts",
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
@@ -98,14 +110,18 @@ public interface AccountsApi {
     ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema=@Schema()) @Valid @RequestBody AccountDTO body);
 
 
-    @Operation(summary = "Get all accounts", description = "Gets accounts in the system", security = {
+    @Operation(summary = "Get all accounts", description = "Gets accounts from the system", security = {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "employee" })
     @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "The accounts", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Account.class)))),
+        @ApiResponse(responseCode = "200", description = "returns users accounts", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Account.class)))),
+        
+        @ApiResponse(responseCode = "400", description = "Invalid account object"),
         
         @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
         
-        @ApiResponse(responseCode = "404", description = "no accounts found") })
+        @ApiResponse(responseCode = "404", description = "No accounts found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/accounts",
         produces = { "application/json" }, 
         method = RequestMethod.GET)

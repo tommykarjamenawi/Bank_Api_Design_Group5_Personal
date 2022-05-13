@@ -8,6 +8,7 @@ package io.swagger.api;
 import io.swagger.model.Account;
 import java.math.BigDecimal;
 import io.swagger.model.InlineResponse200;
+import io.swagger.model.InlineResponse2001;
 import io.swagger.model.LoginDTO;
 import io.swagger.model.User;
 import io.swagger.model.UserDTO;
@@ -37,11 +38,11 @@ import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Map;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T12:23:27.162Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 @Validated
 public interface UsersApi {
 
-    @Operation(summary = "Gets all users", description = "Gets all users in the system according the limit and skip ", security = {
+    @Operation(summary = "Gets all users", description = "Gets all users in the system according the limit and skip and account ", security = {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "employee" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "200", description = "Returns all users", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = User.class)))),
@@ -50,23 +51,26 @@ public interface UsersApi {
         
         @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
         
-        @ApiResponse(responseCode = "404", description = "No users found") })
+        @ApiResponse(responseCode = "404", description = "No users found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/users",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "noAccount", required = true) BigDecimal noAccount);
+    ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) BigDecimal withOutAccount);
 
 
-    @Operation(summary = "Login a user(need check)", description = "By passing in the appropriate options, you can search for user data in the system ", security = {
+    @Operation(summary = "Login a user", description = "By passing in the appropriate options, you can search for user data in the system ", security = {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "customer", "employee" })
     @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "user logged in(need check)"),
+        @ApiResponse(responseCode = "200", description = "user logged in", content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse200.class))),
         
         @ApiResponse(responseCode = "400", description = "Invalid email or password format") })
     @RequestMapping(value = "/users/login",
+        produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Void> usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body);
+    ResponseEntity<InlineResponse200> usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body);
 
 
     @Operation(summary = "Create user", description = "Adds a user to the system", security = {
@@ -76,7 +80,9 @@ public interface UsersApi {
         
         @ApiResponse(responseCode = "400", description = "invalid input, object invalid"),
         
-        @ApiResponse(responseCode = "409", description = "This user already exists") })
+        @ApiResponse(responseCode = "404", description = "No users found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/users",
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
@@ -93,11 +99,13 @@ public interface UsersApi {
         
         @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
         
-        @ApiResponse(responseCode = "404", description = "Account based on this user id is not found") })
+        @ApiResponse(responseCode = "404", description = "Account based on this user id is not found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/users/{userId}/accounts",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<List<Account>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Name of a user", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
+    ResponseEntity<List<Account>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
 
 
     @Operation(summary = "Gets data of the user", description = "By passing in the appropriate options, you can search for user data in the system ", security = {
@@ -109,7 +117,9 @@ public interface UsersApi {
         
         @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
         
-        @ApiResponse(responseCode = "404", description = "User with this id is not found") })
+        @ApiResponse(responseCode = "404", description = "User with this id is not found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/users/{userId}",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
@@ -119,17 +129,19 @@ public interface UsersApi {
     @Operation(summary = "Gets total balance of the user", description = "Returns the total balance of all accounts for a user ", security = {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "customer", "employee" })
     @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Returns a user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse200.class))),
+        @ApiResponse(responseCode = "200", description = "Returns a user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse2001.class))),
         
         @ApiResponse(responseCode = "400", description = "Invalid id format"),
         
         @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
         
-        @ApiResponse(responseCode = "404", description = "Total amount of user with this id is not found") })
+        @ApiResponse(responseCode = "404", description = "Total amount of user with this id is not found"),
+        
+        @ApiResponse(responseCode = "500", description = "Internal server error") })
     @RequestMapping(value = "/users/{userId}/totalBalance",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<InlineResponse200> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
+    ResponseEntity<InlineResponse2001> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
 
 }
 

@@ -13,15 +13,15 @@ import javax.validation.constraints.*;
  * Transaction
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T12:23:27.162Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 
 
 public class Transaction   {
   @JsonProperty("transactionId")
   private Integer transactionId = null;
 
-  @JsonProperty("userPerforming")
-  private Integer userPerforming = null;
+  @JsonProperty("userPerformingId")
+  private Integer userPerformingId = null;
 
   @JsonProperty("fromAccount")
   private String fromAccount = null;
@@ -60,23 +60,23 @@ public class Transaction   {
     this.transactionId = transactionId;
   }
 
-  public Transaction userPerforming(Integer userPerforming) {
-    this.userPerforming = userPerforming;
+  public Transaction userPerformingId(Integer userPerformingId) {
+    this.userPerformingId = userPerformingId;
     return this;
   }
 
   /**
-   * Get userPerforming
-   * @return userPerforming
+   * Get userPerformingId
+   * @return userPerformingId
    **/
   @Schema(example = "50", description = "")
   
-    public Integer getUserPerforming() {
-    return userPerforming;
+    public Integer getUserPerformingId() {
+    return userPerformingId;
   }
 
-  public void setUserPerforming(Integer userPerforming) {
-    this.userPerforming = userPerforming;
+  public void setUserPerformingId(Integer userPerformingId) {
+    this.userPerformingId = userPerformingId;
   }
 
   public Transaction fromAccount(String fromAccount) {
@@ -205,7 +205,7 @@ public class Transaction   {
     }
     Transaction transaction = (Transaction) o;
     return Objects.equals(this.transactionId, transaction.transactionId) &&
-        Objects.equals(this.userPerforming, transaction.userPerforming) &&
+        Objects.equals(this.userPerformingId, transaction.userPerformingId) &&
         Objects.equals(this.fromAccount, transaction.fromAccount) &&
         Objects.equals(this.toAccount, transaction.toAccount) &&
         Objects.equals(this.amount, transaction.amount) &&
@@ -216,7 +216,7 @@ public class Transaction   {
 
   @Override
   public int hashCode() {
-    return Objects.hash(transactionId, userPerforming, fromAccount, toAccount, amount, transactionType, timestamp, balanceAfterTransfer);
+    return Objects.hash(transactionId, userPerformingId, fromAccount, toAccount, amount, transactionType, timestamp, balanceAfterTransfer);
   }
 
   @Override
@@ -225,7 +225,7 @@ public class Transaction   {
     sb.append("class Transaction {\n");
     
     sb.append("    transactionId: ").append(toIndentedString(transactionId)).append("\n");
-    sb.append("    userPerforming: ").append(toIndentedString(userPerforming)).append("\n");
+    sb.append("    userPerformingId: ").append(toIndentedString(userPerformingId)).append("\n");
     sb.append("    fromAccount: ").append(toIndentedString(fromAccount)).append("\n");
     sb.append("    toAccount: ").append(toIndentedString(toAccount)).append("\n");
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");

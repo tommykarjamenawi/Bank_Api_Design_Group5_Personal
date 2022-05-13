@@ -4,7 +4,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -13,31 +12,30 @@ import javax.validation.constraints.*;
  * InlineResponse200
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T12:23:27.162Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 
 
 public class InlineResponse200   {
-  @JsonProperty("totalAmount")
-  private BigDecimal totalAmount = null;
+  @JsonProperty("userId")
+  private Integer userId = null;
 
-  public InlineResponse200 totalAmount(BigDecimal totalAmount) {
-    this.totalAmount = totalAmount;
+  public InlineResponse200 userId(Integer userId) {
+    this.userId = userId;
     return this;
   }
 
   /**
-   * Get totalAmount
-   * @return totalAmount
+   * Get userId
+   * @return userId
    **/
-  @Schema(example = "2000", description = "")
+  @Schema(example = "13", description = "")
   
-    @Valid
-    public BigDecimal getTotalAmount() {
-    return totalAmount;
+    public Integer getUserId() {
+    return userId;
   }
 
-  public void setTotalAmount(BigDecimal totalAmount) {
-    this.totalAmount = totalAmount;
+  public void setUserId(Integer userId) {
+    this.userId = userId;
   }
 
 
@@ -50,12 +48,12 @@ public class InlineResponse200   {
       return false;
     }
     InlineResponse200 inlineResponse200 = (InlineResponse200) o;
-    return Objects.equals(this.totalAmount, inlineResponse200.totalAmount);
+    return Objects.equals(this.userId, inlineResponse200.userId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(totalAmount);
+    return Objects.hash(userId);
   }
 
   @Override
@@ -63,7 +61,7 @@ public class InlineResponse200   {
     StringBuilder sb = new StringBuilder();
     sb.append("class InlineResponse200 {\n");
     
-    sb.append("    totalAmount: ").append(toIndentedString(totalAmount)).append("\n");
+    sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

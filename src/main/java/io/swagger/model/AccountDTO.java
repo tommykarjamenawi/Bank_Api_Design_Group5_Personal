@@ -12,17 +12,17 @@ import javax.validation.constraints.*;
  * AccountDTO
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T12:23:27.162Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 
 
 public class AccountDTO   {
   @JsonProperty("userId")
-  private String userId = null;
+  private Integer userId = null;
 
   @JsonProperty("accountType")
   private String accountType = null;
 
-  public AccountDTO userId(String userId) {
+  public AccountDTO userId(Integer userId) {
     this.userId = userId;
     return this;
   }
@@ -33,11 +33,11 @@ public class AccountDTO   {
    **/
   @Schema(example = "13", description = "")
   
-    public String getUserId() {
+    public Integer getUserId() {
     return userId;
   }
 
-  public void setUserId(String userId) {
+  public void setUserId(Integer userId) {
     this.userId = userId;
   }
 
