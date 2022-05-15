@@ -17,7 +17,7 @@ public class MyApplicationRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception{
-        List<User> users = List.of(new User(13L,"Tommy","Tommy@","customer",1000.00,500.00,0.00));
+        List<User> users = List.of(new User(13L,"Biniam","Tommy@","customer",1000.00,500.00,0.00));
       userRepository.saveAll(users);
     }
 
