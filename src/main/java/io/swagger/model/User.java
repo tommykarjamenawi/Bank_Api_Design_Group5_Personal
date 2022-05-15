@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
@@ -14,30 +17,44 @@ import javax.validation.constraints.*;
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 
-
+@Entity
 public class User   {
+  @Id
   @JsonProperty("userId")
-  private Integer userId = null;
+  private Long userId;
 
   @JsonProperty("fullName")
-  private String fullName = null;
+  private String fullName;
 
   @JsonProperty("email")
-  private String email = null;
+  private String email;
 
   @JsonProperty("role")
-  private String role = null;
+  private String role;
 
   @JsonProperty("dayLimit")
-  private Double dayLimit = null;
+  private Double dayLimit;
 
   @JsonProperty("transactionLimit")
-  private Double transactionLimit = null;
+  private Double transactionLimit;
 
   @JsonProperty("remainingDayLimit")
-  private Double remainingDayLimit = null;
+  private Double remainingDayLimit;
 
-  public User userId(Integer userId) {
+  public User() {
+  }
+
+  public User(Long userId, String fullName, String email, String role, Double dayLimit, Double transactionLimit, Double remainingDayLimit) {
+    this.userId = userId;
+    this.fullName = fullName;
+    this.email = email;
+    this.role = role;
+    this.dayLimit = dayLimit;
+    this.transactionLimit = transactionLimit;
+    this.remainingDayLimit = remainingDayLimit;
+  }
+
+  public User userId(Long userId) {
     this.userId = userId;
     return this;
   }
@@ -48,11 +65,11 @@ public class User   {
    **/
   @Schema(example = "50", description = "")
   
-    public Integer getUserId() {
+    public Long getUserId() {
     return userId;
   }
 
-  public void setUserId(Integer userId) {
+  public void setUserId(Long userId) {
     this.userId = userId;
   }
 
