@@ -1,47 +1,23 @@
 package io.swagger.model;
-
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.validation.annotation.Validated;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+
 
 /**
  * User
  */
-@Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 
 @Entity
 public class User   {
   @Id
-  @JsonProperty("userId")
   private Long userId;
-
-  @JsonProperty("fullName")
   private String fullName;
-
-  @JsonProperty("email")
   private String email;
-
-  @JsonProperty("role")
   private String role;
-
-  @JsonProperty("password")
   private String password;
-
-  @JsonProperty("dayLimit")
   private Double dayLimit;
-
-  @JsonProperty("transactionLimit")
   private Double transactionLimit;
-
-  @JsonProperty("remainingDayLimit")
   private Double remainingDayLimit;
 
   public User() {
@@ -66,9 +42,9 @@ public class User   {
    * Get userId
    * @return userId
    **/
-  @Schema(example = "50", description = "")
+
   
-    public Long getUserId() {
+  public Long getUserId() {
     return userId;
   }
 
@@ -85,7 +61,7 @@ public class User   {
    * Get fullName
    * @return fullName
    **/
-  @Schema(example = "tommy king", description = "")
+
   
     public String getFullName() {
     return fullName;
@@ -104,7 +80,7 @@ public class User   {
    * Get email
    * @return email
    **/
-  @Schema(example = "tommyk@inholland.nl", description = "")
+
   
     public String getEmail() {
     return email;
@@ -123,7 +99,7 @@ public class User   {
    * Get role
    * @return role
    **/
-  @Schema(example = "customer", description = "")
+
   
     public String getRole() {
     return role;
@@ -142,7 +118,7 @@ public class User   {
    * Get dayLimit
    * @return dayLimit
    **/
-  @Schema(example = "1000", description = "")
+
   
     public Double getDayLimit() {
     return dayLimit;
@@ -161,7 +137,7 @@ public class User   {
    * Get transactionLimit
    * @return transactionLimit
    **/
-  @Schema(example = "1000", description = "")
+
   
     public Double getTransactionLimit() {
     return transactionLimit;
@@ -180,7 +156,7 @@ public class User   {
    * Get remainingDayLimit
    * @return remainingDayLimit
    **/
-  @Schema(example = "500", description = "")
+
   
     public Double getRemainingDayLimit() {
     return remainingDayLimit;
