@@ -29,5 +29,4 @@ public class MyApplicationRunner implements ApplicationRunner {
         accountRepository.saveAll(accounts);
     }
 
-
 }
