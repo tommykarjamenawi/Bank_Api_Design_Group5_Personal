@@ -32,6 +32,9 @@ public class User   {
   @JsonProperty("role")
   private String role;
 
+  @JsonProperty("password")
+  private String password;
+
   @JsonProperty("dayLimit")
   private Double dayLimit;
 
