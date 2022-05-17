@@ -8,6 +8,7 @@ package io.swagger.api;
 import io.swagger.model.Account;
 import io.swagger.model.dto.AccountDTO;
 import io.swagger.model.Transaction;
+import io.swagger.model.dto.AccountResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -102,7 +103,7 @@ public interface AccountsApi {
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema=@Schema()) @Valid @RequestBody AccountDTO body);
+    ResponseEntity<AccountResponseDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema=@Schema()) @Valid @RequestBody AccountDTO body);
 
 
     @Operation(summary = "Get all accounts", description = "Gets accounts from the system", security = {

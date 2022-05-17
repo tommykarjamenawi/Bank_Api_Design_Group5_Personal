@@ -40,6 +40,4 @@ public class User   {
     this.transactionLimit = transactionLimit;
     this.remainingDayLimit = remainingDayLimit;
   }
-
-
 }
