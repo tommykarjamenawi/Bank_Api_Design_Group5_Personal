@@ -27,6 +27,9 @@ import javax.validation.constraints.*;
 public class Account{
 
   @Id
+  @SequenceGenerator(name = "account_seq", initialValue = 1)
+  @GeneratedValue(generator = "account_seq", strategy = GenerationType.SEQUENCE)
+  private Integer accountId;
   private String IBAN;
   @ManyToOne(cascade = CascadeType.ALL)
   private User user;
@@ -58,10 +61,11 @@ public class Account{
     String bankCode = "INHO";
      // create a 10 digit random number
     int randomNumber2 = (int) (Math.random() * (999999999 - 100000000 + 1) + 100000000);
+    int lastDigit = (int) (Math.random() * (9 - 0 + 1) + 0);
     String randomNumberString2 = String.valueOf(randomNumber2);
 
-    String iban = countryCode + randomNumberString + bankCode + randomNumberString2;
-    return IBAN;
+    String iban = countryCode + randomNumberString + bankCode + randomNumberString2 + lastDigit;
+    return iban;
   }
 
 }
