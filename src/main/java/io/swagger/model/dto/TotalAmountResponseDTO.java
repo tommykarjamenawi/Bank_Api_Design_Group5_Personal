@@ -1,13 +1,11 @@
-package io.swagger.model;
+package io.swagger.model.dto;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
  * InlineResponse2001
@@ -16,11 +14,11 @@ import javax.validation.constraints.*;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 
 
-public class InlineResponse2001   {
+public class TotalAmountResponseDTO {
   @JsonProperty("totalAmount")
   private BigDecimal totalAmount = null;
 
-  public InlineResponse2001 totalAmount(BigDecimal totalAmount) {
+  public TotalAmountResponseDTO totalAmount(BigDecimal totalAmount) {
     this.totalAmount = totalAmount;
     return this;
   }
@@ -49,8 +47,8 @@ public class InlineResponse2001   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    InlineResponse2001 inlineResponse2001 = (InlineResponse2001) o;
-    return Objects.equals(this.totalAmount, inlineResponse2001.totalAmount);
+    TotalAmountResponseDTO totalAmountResponseDTO = (TotalAmountResponseDTO) o;
+    return Objects.equals(this.totalAmount, totalAmountResponseDTO.totalAmount);
   }
 
   @Override

@@ -7,11 +7,11 @@ package io.swagger.api;
 
 import io.swagger.model.Account;
 import java.math.BigDecimal;
-import io.swagger.model.InlineResponse200;
-import io.swagger.model.InlineResponse2001;
-import io.swagger.model.LoginDTO;
+import io.swagger.model.dto.LoginResponseDTO;
+import io.swagger.model.dto.TotalAmountResponseDTO;
+import io.swagger.model.dto.LoginDTO;
 import io.swagger.model.User;
-import io.swagger.model.UserDTO;
+import io.swagger.model.dto.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -25,18 +25,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.CookieValue;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.List;
-import java.util.Map;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 @Validated
@@ -63,14 +58,14 @@ public interface UsersApi {
     @Operation(summary = "Login a user", description = "By passing in the appropriate options, you can search for user data in the system ", security = {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "customer", "employee" })
     @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "user logged in", content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse200.class))),
+        @ApiResponse(responseCode = "200", description = "user logged in", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponseDTO.class))),
         
         @ApiResponse(responseCode = "400", description = "Invalid email or password format") })
     @RequestMapping(value = "/users/login",
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<InlineResponse200> usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body);
+    ResponseEntity<LoginResponseDTO> usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body);
 
 
     @Operation(summary = "Create user", description = "Adds a user to the system", security = {
@@ -129,7 +124,7 @@ public interface UsersApi {
     @Operation(summary = "Gets total balance of the user", description = "Returns the total balance of all accounts for a user ", security = {
         @SecurityRequirement(name = "bearerAuth")    }, tags={ "customer", "employee" })
     @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Returns a user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = InlineResponse2001.class))),
+        @ApiResponse(responseCode = "200", description = "Returns a user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TotalAmountResponseDTO.class))),
         
         @ApiResponse(responseCode = "400", description = "Invalid id format"),
         
@@ -141,7 +136,7 @@ public interface UsersApi {
     @RequestMapping(value = "/users/{userId}/totalBalance",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<InlineResponse2001> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
+    ResponseEntity<TotalAmountResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
 
 }
 

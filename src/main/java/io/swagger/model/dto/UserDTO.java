@@ -1,28 +1,50 @@
-package io.swagger.model;
+package io.swagger.model.dto;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
- * LoginDTO
+ * UserDTO
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 
 
-public class LoginDTO   {
+public class UserDTO   {
+  @JsonProperty("fullname")
+  private String fullname = null;
+
   @JsonProperty("email")
   private String email = null;
 
   @JsonProperty("password")
   private String password = null;
 
-  public LoginDTO email(String email) {
+  @JsonProperty("role")
+  private String role = null;
+
+  public UserDTO fullname(String fullname) {
+    this.fullname = fullname;
+    return this;
+  }
+
+  /**
+   * Get fullname
+   * @return fullname
+   **/
+  @Schema(example = "tommy king", description = "")
+  
+    public String getFullname() {
+    return fullname;
+  }
+
+  public void setFullname(String fullname) {
+    this.fullname = fullname;
+  }
+
+  public UserDTO email(String email) {
     this.email = email;
     return this;
   }
@@ -31,7 +53,7 @@ public class LoginDTO   {
    * Get email
    * @return email
    **/
-  @Schema(example = "Tommy@gmail.com", description = "")
+  @Schema(example = "tommyk@inholland.nl", description = "")
   
     public String getEmail() {
     return email;
@@ -41,7 +63,7 @@ public class LoginDTO   {
     this.email = email;
   }
 
-  public LoginDTO password(String password) {
+  public UserDTO password(String password) {
     this.password = password;
     return this;
   }
@@ -50,7 +72,7 @@ public class LoginDTO   {
    * Get password
    * @return password
    **/
-  @Schema(example = "********", description = "")
+  @Schema(example = "EQH44wAT^m45", description = "")
   
     public String getPassword() {
     return password;
@@ -58,6 +80,25 @@ public class LoginDTO   {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public UserDTO role(String role) {
+    this.role = role;
+    return this;
+  }
+
+  /**
+   * Get role
+   * @return role
+   **/
+  @Schema(example = "customer", description = "")
+  
+    public String getRole() {
+    return role;
+  }
+
+  public void setRole(String role) {
+    this.role = role;
   }
 
 
@@ -69,23 +110,27 @@ public class LoginDTO   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    LoginDTO loginDTO = (LoginDTO) o;
-    return Objects.equals(this.email, loginDTO.email) &&
-        Objects.equals(this.password, loginDTO.password);
+    UserDTO userDTO = (UserDTO) o;
+    return Objects.equals(this.fullname, userDTO.fullname) &&
+        Objects.equals(this.email, userDTO.email) &&
+        Objects.equals(this.password, userDTO.password) &&
+        Objects.equals(this.role, userDTO.role);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(email, password);
+    return Objects.hash(fullname, email, password, role);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class LoginDTO {\n");
+    sb.append("class UserDTO {\n");
     
+    sb.append("    fullname: ").append(toIndentedString(fullname)).append("\n");
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("    password: ").append(toIndentedString(password)).append("\n");
+    sb.append("    role: ").append(toIndentedString(role)).append("\n");
     sb.append("}");
     return sb.toString();
   }
