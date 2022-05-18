@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
 import org.springframework.validation.annotation.Validated;
 
@@ -32,11 +33,11 @@ public class Transaction   {
   private String toAccount;
   private Double amount ;
   private String transactionType;
-  private OffsetDateTime timestamp;
+  private LocalDate timestamp;
   private Double balanceAfterTransfer;
 
-  public Transaction(Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, OffsetDateTime timestamp, Double balanceAfterTransfer) {
-    this.transactionId = transactionId;
+  public Transaction(Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, LocalDate timestamp, Double balanceAfterTransfer) {
+
     this.userPerformingId = userPerformingId;
     this.fromAccount = fromAccount;
     this.toAccount = toAccount;
