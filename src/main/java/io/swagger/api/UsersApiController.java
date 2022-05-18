@@ -14,6 +14,7 @@ import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,18 +74,11 @@ public class UsersApiController implements UsersApi {
 
     public ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "User to add", schema=@Schema()) @Valid @RequestBody UserDTO body) {
 
-        User user = new User();
-        user.setFullName(body.getFullname());
-        user.setEmail(body.getEmail());
-        user.setPassword(body.getPassword());
-        user.setRole(body.getRole());
-        user.setDayLimit(1300.00);
-        user.setTransactionLimit(500.00);
-        user.setRemainingDayLimit(0.00);
+        ModelMapper modelMapper = new ModelMapper();
+        User user = modelMapper.map(body, User.class);
+        User storedUser = userService.createUser(user);
 
-        User storeUser = userService.createUser(user);
-
-        return new ResponseEntity<User>(storeUser, HttpStatus.CREATED);
+        return new ResponseEntity<User>(storedUser, HttpStatus.CREATED);
     }
 
     public ResponseEntity<List<Account>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {

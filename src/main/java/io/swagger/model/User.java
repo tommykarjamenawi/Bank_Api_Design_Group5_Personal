@@ -28,9 +28,9 @@ public class User   {
   private String email;
   private String role;
   private String password;
-  private Double dayLimit;
-  private Double transactionLimit;
-  private Double remainingDayLimit;
+  private Double dayLimit = 5000.00;
+  private Double transactionLimit= 1000.00;
+  private Double remainingDayLimit=0.00;
 
   public User(String fullName, String email, String role, Double dayLimit, Double transactionLimit, Double remainingDayLimit) {
     this.fullName = fullName;
