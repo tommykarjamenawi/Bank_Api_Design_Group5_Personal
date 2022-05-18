@@ -22,6 +22,8 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
@@ -46,8 +48,10 @@ public class TransactionsApiController implements TransactionsApi {
 
     public ResponseEntity<List<Transaction>> transactionsGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate) {
 
-
-        return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
+        java.time.LocalDateTime date1 = LocalDateTime.parse(startDate);
+        java.time.LocalDateTime date2 = LocalDateTime.parse(endDate);
+        List<Transaction> transactions = transactionService.getAllTransactions(date1, date2);
+        return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
     }
 
     public ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody TransactionDTO body) {
@@ -55,7 +59,7 @@ public class TransactionsApiController implements TransactionsApi {
         Transaction transaction = new Transaction();
         transaction.setAmount(body.getAmount());
         transaction.setFromAccount(body.getFromAccount());
-        transaction.setTimestamp(LocalDate.now());
+        transaction.setTimestamp(LocalDateTime.now());
         transaction.setToAccount(body.getToAccount());
         transaction.setTransactionId(1);
         transaction.setTransactionType(body.getTransactionType());

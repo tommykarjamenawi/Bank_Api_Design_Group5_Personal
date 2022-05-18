@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.java.Log;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.OffsetDateTime;
 import org.springframework.validation.annotation.Validated;
 
@@ -33,10 +36,15 @@ public class Transaction   {
   private String toAccount;
   private Double amount ;
   private String transactionType;
-  private LocalDate timestamp;
+  @CreationTimestamp
+  private java.time.LocalDateTime timestamp;
+  @UpdateTimestamp
+  private LocalDateTime lastUpdated;
+
   private Double balanceAfterTransfer;
 
-  public Transaction(Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, LocalDate timestamp, Double balanceAfterTransfer) {
+
+  public Transaction(Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, java.time.LocalDateTime timestamp, Double balanceAfterTransfer) {
 
     this.userPerformingId = userPerformingId;
     this.fromAccount = fromAccount;
