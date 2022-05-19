@@ -5,8 +5,8 @@ import io.swagger.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,10 +17,19 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public List<Transaction> getAllTransactions(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
-       return  transactionRepository.findBytimestampCreatedBetween(startDate, endDate);
+    public Iterable<Transaction> getAllTransactions(String timestamp) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        java.time.LocalDateTime dateTime = LocalDateTime.parse(timestamp, formatter);
+       return transactionRepository.getTransactionByTimestamp(dateTime);
     }
 
+    public Iterable<Transaction> getAllllTransactions(LocalDateTime startDate, LocalDateTime endDate) {
+        return transactionRepository.getAllTransactionsBetween(startDate, endDate);
+    }
+
+    public Iterable<Transaction> getAllTransactionsByIBAN(String iban) {
+        return transactionRepository.getTransactionByFromAccount(iban);
+    }
     public Transaction createTransaction(Transaction transaction) {
         return transactionRepository.save(transaction);
     }

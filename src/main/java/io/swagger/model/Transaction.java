@@ -36,9 +36,7 @@ public class Transaction   {
   private String toAccount;
   private Double amount ;
   private String transactionType;
-  @CreationTimestamp
   private java.time.LocalDateTime timestamp;
-  @UpdateTimestamp
   private LocalDateTime lastUpdated;
 
   private Double balanceAfterTransfer;
