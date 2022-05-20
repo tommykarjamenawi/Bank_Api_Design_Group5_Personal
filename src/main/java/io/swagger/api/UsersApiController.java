@@ -30,6 +30,7 @@ import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 @RestController
@@ -51,18 +52,11 @@ public class UsersApiController implements UsersApi {
         this.request = request;
     }
 
-    public ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) BigDecimal withOutAccount) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<User>>(objectMapper.readValue("[ {\n  \"remainingDayLimit\" : 500,\n  \"role\" : \"customer\",\n  \"dayLimit\" : 1000,\n  \"fullName\" : \"tommy king\",\n  \"transactionLimit\" : 1000,\n  \"userId\" : 50,\n  \"email\" : \"tommyk@inholland.nl\"\n}, {\n  \"remainingDayLimit\" : 500,\n  \"role\" : \"customer\",\n  \"dayLimit\" : 1000,\n  \"fullName\" : \"tommy king\",\n  \"transactionLimit\" : 1000,\n  \"userId\" : 50,\n  \"email\" : \"tommyk@inholland.nl\"\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+    public ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = false) Integer limit,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) BigDecimal withOutAccount) {
 
-        return new ResponseEntity<List<User>>(HttpStatus.NOT_IMPLEMENTED);
+        Iterable<User> users = userService.getAllUsers();
+
+        return new ResponseEntity<List<User>>((List<User>) users,HttpStatus.OK);
     }
 
     public ResponseEntity usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body) {
@@ -95,18 +89,10 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<List<Account>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<User> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<User>(objectMapper.readValue("{\n  \"remainingDayLimit\" : 500,\n  \"role\" : \"customer\",\n  \"dayLimit\" : 1000,\n  \"fullName\" : \"tommy king\",\n  \"transactionLimit\" : 1000,\n  \"userId\" : 50,\n  \"email\" : \"tommyk@inholland.nl\"\n}", User.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+    public ResponseEntity<Optional<User>> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
 
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+        Optional<User> user = userService.getUserById(userId);
+        return new ResponseEntity<Optional<User>>(user,HttpStatus.OK);
     }
 
     public ResponseEntity<TotalAmountResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
