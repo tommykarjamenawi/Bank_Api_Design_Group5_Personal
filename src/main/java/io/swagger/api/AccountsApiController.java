@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.*;
 import javax.validation.Valid;
@@ -50,22 +51,16 @@ public class AccountsApiController implements AccountsApi {
     }
 
     public ResponseEntity<Void> accountsIBANDelete(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+        accountService.deleteAccount(IBAN);
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
     public ResponseEntity<Account> accountsIBANGet(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"dayLimit\" : 1000,\n  \"IBAN\" : \"NL14INHO1234567890\",\n  \"absoluteLimit\" : 0,\n  \"currentBalance\" : 100,\n  \"accountType\" : \"current\",\n  \"userId\" : 13\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+       Account account = accountService.getAccountByIBAN(IBAN);
+       if (account==null)
+           throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
 
-        return new ResponseEntity<Account>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<Account>(account,HttpStatus.OK);
     }
 
     public ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("IBAN") Integer IBAN,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "minValue", required = true) Integer minValue,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
@@ -87,15 +82,33 @@ public class AccountsApiController implements AccountsApi {
         ModelMapper modelMapper = new ModelMapper();
         Account account = modelMapper.map(body, Account.class);
 
-        account.setIBAN(account.generateIBAN());
+           if(body.getUserId()>0) {  // this check will be updates later after we made getuserbyid
+               if (body.getAccountType().equals("current")) {
+                   account.setIBAN(account.generateCurrentIBAN());
+                   account = accountService.createAccount(account);
+               } else if (body.getAccountType().equals("saving")) {
+                   User user = new User();
+                   user.setUserId(body.getUserId());
+                   boolean check = accountService.checkCurrentAccount(user);
+                   if (check){
+                       account.setIBAN(account.generateSavingIBAN());
+                       account = accountService.createAccount(account);
+                   }else {
+                       throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have current account first");
+                   }
 
+               } else {
+                   throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Account needs to be either type: current or saving");
+               }
+           }else {
+               throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be registerd as a user");
+           }
 
-        account = accountService.createAccount(account);
 
         AccountResponseDTO accountResponseDTO = new AccountResponseDTO();
         accountResponseDTO.setIBAN(account.getIBAN());
         accountResponseDTO.setAccountType(account.getAccountType());
-
+        account=null;
         return new ResponseEntity<AccountResponseDTO>(accountResponseDTO,HttpStatus.CREATED);
     }
 

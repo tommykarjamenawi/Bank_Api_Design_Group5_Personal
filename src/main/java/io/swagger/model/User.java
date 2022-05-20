@@ -32,6 +32,7 @@ public class User   {
   private Double transactionLimit;
   private Double remainingDayLimit;
 
+
   public User(String fullName, String email, String role, Double dayLimit, Double transactionLimit, Double remainingDayLimit) {
     this.fullName = fullName;
     this.email = email;

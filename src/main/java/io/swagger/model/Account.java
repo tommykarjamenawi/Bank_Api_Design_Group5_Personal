@@ -31,8 +31,10 @@ public class Account{
   @GeneratedValue(generator = "account_seq", strategy = GenerationType.SEQUENCE)
   private Integer accountId;
   private String IBAN;
+
   @ManyToOne(cascade = CascadeType.ALL)
   private User user;
+
   private Double currentBalance;
   private String accountType;
 
@@ -46,7 +48,7 @@ public class Account{
   }
 
   // generate the IBAN
-  public String generateIBAN() {
+  public String generateCurrentIBAN() {
     String countryCode = "NL";
     // create random number between 2 and 99
     int randomNumber = (int) (Math.random() * (99 - 2 + 1) + 2);
@@ -56,6 +58,24 @@ public class Account{
     }
     String bankCode = "INHO";
      // create a 10 digit random number
+    int randomNumber2 = (int) (Math.random() * (999999999 - 100000000 + 1) + 100000000);
+    int lastDigit = (int) (Math.random() * (9 - 0 + 1) + 0);
+    String randomNumberString2 = String.valueOf(randomNumber2);
+
+    String iban = countryCode + randomNumberString + bankCode + randomNumberString2 + lastDigit;
+    return iban;
+  }
+
+  public String generateSavingIBAN() {
+    String countryCode = "NL";
+    // create random number between 2 and 99
+    int randomNumber = (int) (Math.random() * (99 - 2 + 1) + 2);
+    String randomNumberString = String.valueOf(randomNumber);
+    if (randomNumber < 10) {
+      randomNumberString = "0" + randomNumberString;
+    }
+    String bankCode = "INHO";
+    // create a 10 digit random number
     int randomNumber2 = (int) (Math.random() * (999999999 - 100000000 + 1) + 100000000);
     int lastDigit = (int) (Math.random() * (9 - 0 + 1) + 0);
     String randomNumberString2 = String.valueOf(randomNumber2);
