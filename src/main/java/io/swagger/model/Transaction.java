@@ -12,7 +12,7 @@ import lombok.extern.java.Log;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
+import java.time.LocalDateTime;
 import org.threeten.bp.OffsetDateTime;
 import org.springframework.validation.annotation.Validated;
 

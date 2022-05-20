@@ -9,14 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.java.Log;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.validation.annotation.Validated;
-
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-
-
 @Entity
 @Getter
 @Setter
@@ -33,8 +26,4 @@ public class Account   {
   private Double absoluteLimit;
   private Double currentBalance;
   private String accountType;
-
-
-
-
 }

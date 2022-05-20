@@ -17,19 +17,14 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public Iterable<Transaction> getAllTransactions(String timestamp) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        java.time.LocalDateTime dateTime = LocalDateTime.parse(timestamp, formatter);
-       return transactionRepository.getTransactionByTimestamp(dateTime);
-    }
-
-    public Iterable<Transaction> getAllllTransactions(LocalDateTime startDate, LocalDateTime endDate) {
+    public Iterable<Transaction> getAllTransactions(LocalDateTime startDate, LocalDateTime endDate) {
         return transactionRepository.getAllTransactionsBetween(startDate, endDate);
     }
 
     public Iterable<Transaction> getAllTransactionsByIBAN(String iban) {
         return transactionRepository.getTransactionByFromAccount(iban);
     }
+
     public Transaction createTransaction(Transaction transaction) {
         return transactionRepository.save(transaction);
     }

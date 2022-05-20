@@ -43,36 +43,30 @@ public class TransactionsApiController implements TransactionsApi {
         this.request = request;
     }
 
-    public ResponseEntity<Iterable<Transaction>> transactionsGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate) {
-        return null;
+    public ResponseEntity<Iterable<Transaction>> transactionsGet(
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" , required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true)
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
+
+
+        Iterable<Transaction> transactions = transactionService.getAllTransactions(startDate, endDate);
+        return new ResponseEntity<>(transactions, HttpStatus.OK);
+
     }
 
-    @GetMapping("/transactions")
-    public ResponseEntity<Iterable<Transaction>> transactionsGet(@RequestParam String timestamp) {
-        Iterable<Transaction> transactions =  transactionService.getAllTransactions(timestamp);
-        return new ResponseEntity<Iterable<Transaction>>(transactions, HttpStatus.OK);
-    }
-
-    @GetMapping("/transactions/filter/{startDate}/{endDate}")
-    public List<Transaction> filterByDates(@PathVariable(value = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate, @PathVariable(value = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
-        return (List<Transaction>) transactionService.getAllllTransactions(startDate, endDate);
-    }
-
-    @GetMapping("/accounts/{IBAN}/transactions")
-    public List<Transaction> filterTransactionByIBAN(@PathVariable(value = "IBAN") String iban) {
-        return (List<Transaction>) transactionService.getAllTransactionsByIBAN(iban);
-    }
-
-
-
-    public ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody TransactionDTO body) {
+    public ResponseEntity<Transaction> transactionsPost(
+            @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
+            @Valid @RequestBody TransactionDTO body) {
 
         Transaction transaction = new Transaction();
         transaction.setAmount(body.getAmount());
         transaction.setFromAccount(body.getFromAccount());
+
         LocalDateTime today = LocalDateTime.now();
-        String str = "2018-12-10 12:30";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String str = today.format(formatter);
+
         LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
         transaction.setTimestamp(dateTime);
         transaction.setToAccount(body.getToAccount());
