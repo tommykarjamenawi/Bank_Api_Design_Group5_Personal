@@ -85,15 +85,10 @@ public class AccountsApiController implements AccountsApi {
     public ResponseEntity<AccountResponseDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema=@Schema()) @Valid @RequestBody AccountDTO body) {
 
         ModelMapper modelMapper = new ModelMapper();
-        //Account account = modelMapper.map(body, Account.class)
+        Account account = modelMapper.map(body, Account.class);
 
-        Account account = new Account();
         account.setIBAN(account.generateIBAN());
-        account.setUser(new User());
-        account.setDayLimit(500.00);
-        account.setAbsoluteLimit(0.00);
-        account.setCurrentBalance(0.00);
-        account.setAccountType(body.getAccountType());
+
 
         account = accountService.createAccount(account);
 

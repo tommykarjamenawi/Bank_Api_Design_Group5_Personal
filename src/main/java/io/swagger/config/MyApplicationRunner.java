@@ -25,7 +25,7 @@ public class MyApplicationRunner implements ApplicationRunner {
         userRepository.saveAll(users);
 
         // Create an account for the BANK at system startup
-        List<Account> accounts = List.of(new Account("NL01INHO0000000001",new User(), Double.MAX_VALUE, 0.00, Double.MAX_VALUE, "bank"));
+        List<Account> accounts = List.of(new Account("NL01INHO0000000001",new User(), Double.MAX_VALUE, "bank"));
         accountRepository.saveAll(accounts);
     }
 

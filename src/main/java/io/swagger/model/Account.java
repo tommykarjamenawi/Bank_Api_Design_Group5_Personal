@@ -33,18 +33,14 @@ public class Account{
   private String IBAN;
   @ManyToOne(cascade = CascadeType.ALL)
   private User user;
-  private Double dayLimit;
-  private Double absoluteLimit;
   private Double currentBalance;
   private String accountType;
 
 
   // to create the bank account
-  public Account(String IBAN, User user, Double dayLimit, Double absoluteLimit, Double currentBalance, String accountType) {
+  public Account(String IBAN, User user,Double currentBalance, String accountType) {
     this.IBAN = IBAN;
     this.user = user;
-    this.dayLimit = dayLimit;
-    this.absoluteLimit = absoluteLimit;
     this.currentBalance = currentBalance;
     this.accountType = accountType;
   }
