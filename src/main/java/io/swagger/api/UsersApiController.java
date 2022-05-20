@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 @RestController
@@ -54,9 +55,14 @@ public class UsersApiController implements UsersApi {
 
     public ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = false) Integer limit,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) BigDecimal withOutAccount) {
 
-        Iterable<User> users = userService.getAllUsers();
+        List<User> users = (List<User>) userService.getAllUsers();
 
-        return new ResponseEntity<List<User>>((List<User>) users,HttpStatus.OK);
+        users = users.stream()
+                .skip(skip)
+                .limit(limit)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<List<User>>(users,HttpStatus.OK);
     }
 
     public ResponseEntity usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body) {
