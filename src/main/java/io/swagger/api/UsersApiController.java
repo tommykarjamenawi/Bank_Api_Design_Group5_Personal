@@ -50,7 +50,7 @@ public class UsersApiController implements UsersApi {
         this.request = request;
     }
 
-    public ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) BigDecimal withOutAccount) {
+    public ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) BigDecimal withOutAccount) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -64,25 +64,24 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<List<User>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body) {
-
-        LoginResponseDTO newbody = new LoginResponseDTO();
-        newbody.setUserId(45);
-        return ResponseEntity.status(200).body(newbody);
+    public LoginResponseDTO usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body) {
+        LoginResponseDTO responseDTO = new LoginResponseDTO();
+        responseDTO.setToken(userService.login(body.getUsername(), body.getPassword()));
+        return responseDTO;
     }
 
     public ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "User to add", schema=@Schema()) @Valid @RequestBody UserDTO body) {
 
         User user = new User();
-        user.setFullName(body.getFullname());
+        user.setUsername(body.getUsername());
         user.setEmail(body.getEmail());
         user.setPassword(body.getPassword());
-        user.setRole(body.getRole());
-        user.setDayLimit(1300.00);
+        user.setRoles(body.getRoles());
+        user.setDayLimit(1500.00);
         user.setTransactionLimit(500.00);
-        user.setRemainingDayLimit(0.00);
+        user.setRemainingDayLimit(1500.00);
 
-        User storeUser = userService.createUser(user);
+        User storeUser = userService.add(user);
 
         return new ResponseEntity<User>(storeUser, HttpStatus.CREATED);
     }
