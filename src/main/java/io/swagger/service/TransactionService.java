@@ -21,8 +21,8 @@ public class TransactionService {
         return transactionRepository.getAllTransactionsBetween(startDate, endDate);
     }
 
-    public Iterable<Transaction> getAllTransactionsByIBAN(String iban) {
-        return transactionRepository.getTransactionByFromAccount(iban);
+    public Iterable<Transaction> getAllTransactionsByIBAN(String senderIban) {
+        return transactionRepository.getTransactionBySenderIBANAccount(senderIban);
     }
 
     public Transaction createTransaction(Transaction transaction) {

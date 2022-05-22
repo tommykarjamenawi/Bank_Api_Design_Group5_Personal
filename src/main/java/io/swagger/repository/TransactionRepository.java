@@ -16,5 +16,5 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
     @Query(value = "SELECT transactionId, transactionType, balanceAfterTransfer, userPerformingId  FROM Transaction WHERE timestamp BETWEEN :startDate AND :endDate")
     Iterable<Transaction> getAllTransactionsBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
-    Iterable<Transaction> getTransactionByFromAccount(String fromAccount);
+    Iterable<Transaction> getTransactionBySenderIBANAccount(String senderIBANumber);
 }

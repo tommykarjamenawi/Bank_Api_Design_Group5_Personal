@@ -49,33 +49,44 @@ public class TransactionsApiController implements TransactionsApi {
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
 
-
         Iterable<Transaction> transactions = transactionService.getAllTransactions(startDate, endDate);
         return new ResponseEntity<>(transactions, HttpStatus.OK);
 
+    }
+
+    @GetMapping("/accounts/{IBAN}/transactions")
+    public ResponseEntity<Iterable<Transaction>> getAllTransactionsFromAccount(@PathVariable(value = "IBAN") String iban) {
+            Iterable<Transaction> transactions = transactionService.getAllTransactionsByIBAN(iban);
+            return new ResponseEntity<>(transactions, HttpStatus.OK);
     }
 
     public ResponseEntity<Transaction> transactionsPost(
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
             @Valid @RequestBody TransactionDTO body) {
 
-        Transaction transaction = new Transaction();
-        transaction.setAmount(body.getAmount());
-        transaction.setFromAccount(body.getFromAccount());
+        try {
+            Transaction transaction = new Transaction();
+            transaction.setAmount(body.getAmount());
+            transaction.setSenderIBANAccount(body.getFromAccount());
 
-        LocalDateTime today = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        String str = today.format(formatter);
+            LocalDateTime today = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            String transactionDate = today.format(formatter);
 
-        LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
-        transaction.setTimestamp(dateTime);
-        transaction.setToAccount(body.getToAccount());
-        transaction.setTransactionId(1);
-        transaction.setTransactionType(body.getTransactionType());
-        transaction.setUserPerformingId(2);
+            LocalDateTime dateTime = LocalDateTime.parse(transactionDate, formatter);
+            transaction.setTimestamp(dateTime);
+            transaction.setRecieverIBANAccount(body.getToAccount());
+            transaction.setTransactionId(1);
+            transaction.setTransactionType(body.getTransactionType());
+            transaction.setUserPerformingId(2);
 
-        Transaction storeTransaction =  transactionService.createTransaction(transaction);
-        return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
+            Transaction storeTransaction =  transactionService.createTransaction(transaction);
+            return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
+        }
+        catch (Exception ex) {
+            return new ResponseEntity<Transaction>(HttpStatus.BAD_GATEWAY);
+        }
+
     }
 
 }
