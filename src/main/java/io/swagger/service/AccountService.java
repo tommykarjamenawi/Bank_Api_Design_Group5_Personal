@@ -32,7 +32,7 @@ public class AccountService {
     public void deleteAccount(String iban) {
         Account accountToDelete = accountRepository.getByIBAN(iban);
         if(accountToDelete==null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account does not exist");
         }
         accountRepository.delete(accountToDelete);
     }

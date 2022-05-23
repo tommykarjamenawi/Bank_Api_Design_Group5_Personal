@@ -51,11 +51,14 @@ public class AccountsApiController implements AccountsApi {
     }
 
     public ResponseEntity<Void> accountsIBANDelete(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN) {
+      //  if (employee) check if the tocken is employee
         accountService.deleteAccount(IBAN);
+        //it allowed to delete with your role
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
     public ResponseEntity<Account> accountsIBANGet(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN) {
+      // check if the userid is the same or the role=emplyee
        Account account = accountService.getAccountByIBAN(IBAN);
        if (account==null)
            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
@@ -82,21 +85,21 @@ public class AccountsApiController implements AccountsApi {
         ModelMapper modelMapper = new ModelMapper();
         Account account = modelMapper.map(body, Account.class);
 
-           if(body.getUserId()>0) {  // this check will be updates later after we made getuserbyid
+           if(body.getUserId()>0) {  // this check will be updates later after we made getuserbyid token and role
                if (body.getAccountType().equals("current")) {
-                   account.setIBAN(account.generateCurrentIBAN());
-                   account = accountService.createAccount(account);
+                   account.setIBAN(account.generateIBAN());
+
                } else if (body.getAccountType().equals("saving")) {
                    User user = new User();
                    user.setUserId(body.getUserId());
-                   boolean check = accountService.checkCurrentAccount(user);
-                   if (check){
-                       account.setIBAN(account.generateSavingIBAN());
-                       account = accountService.createAccount(account);
-                   }else {
-                       throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have current account first");
-                   }
+//                   boolean check = accountService.checkCurrentAccount(user);
+//                   if (check){
+                       account.setIBAN(account.generateIBAN());
 
+//                   }else {
+//                       throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have current account first");
+//                   }
+                   account = accountService.createAccount(account);
                } else {
                    throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Account needs to be either type: current or saving");
                }
