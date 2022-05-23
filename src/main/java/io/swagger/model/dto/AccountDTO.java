@@ -1,10 +1,6 @@
 package io.swagger.model.dto;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.model.User;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.validation.annotation.Validated;

@@ -1,44 +1,33 @@
 package io.swagger.model;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.java.Log;
 
-import java.util.Objects;
+import java.util.List;
 import javax.persistence.*;
-
-
-/**
- * User
- */
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString // the tostring method
-@Log // to see whats happening in the class
-public class User   {
-  @Id
-  @SequenceGenerator(name = "users_seq", initialValue = 1)
-  @GeneratedValue(generator = "users_seq", strategy = GenerationType.SEQUENCE)
-  private Integer userId;
-  private String fullName;
-  private String email;
-  private String role;
-  private String password;
-  private Double dayLimit;
-  private Double transactionLimit;
-  private Double remainingDayLimit;
+@ToString
+@Log
+public class User {
+    @Id
+    @SequenceGenerator(name = "users_seq", initialValue = 1)
+    @GeneratedValue(generator = "users_seq", strategy = GenerationType.SEQUENCE)
+    private Integer userId;
+    private String username;
+    private String email;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Role> roles;
+    private String password;
+    private Double dayLimit;
+    private Double transactionLimit;
+    private Double remainingDayLimit;
 
 
-  public User(String fullName, String email, String role, Double dayLimit, Double transactionLimit, Double remainingDayLimit) {
-    this.fullName = fullName;
-    this.email = email;
-    this.role = role;
-    this.dayLimit = dayLimit;
-    this.transactionLimit = transactionLimit;
-    this.remainingDayLimit = remainingDayLimit;
-  }
 }

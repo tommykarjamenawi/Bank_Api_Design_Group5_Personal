@@ -3,7 +3,6 @@ package io.swagger.service;
 import io.swagger.model.Account;
 import io.swagger.model.User;
 import io.swagger.repository.AccountRepository;
-import io.swagger.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

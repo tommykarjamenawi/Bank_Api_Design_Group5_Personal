@@ -55,17 +55,16 @@ public interface UsersApi {
     ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) BigDecimal withOutAccount);
 
 
-    @Operation(summary = "Login a user", description = "By passing in the appropriate options, you can search for user data in the system ", security = {
-        @SecurityRequirement(name = "bearerAuth")    }, tags={ "customer", "employee" })
-    @ApiResponses(value = { 
+    @Operation(summary = "Login a user", description = "By passing in the appropriate options, you can search for user data in the system ", tags={ "customer", "employee" })
+    @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "user logged in", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponseDTO.class))),
-        
+
         @ApiResponse(responseCode = "400", description = "Invalid email or password format") })
     @RequestMapping(value = "/users/login",
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<LoginResponseDTO> usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body);
+    LoginResponseDTO usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body);
 
 
     @Operation(summary = "Create user", description = "Adds a user to the system", security = {
