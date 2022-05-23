@@ -25,11 +25,11 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] AUTH_WHITELIST = {
             "/bankAPI/users/login",
-            "/bankAPI/h2-console/**/**",
-            "/swagger-ui/**/**",
-            "/swagger-ui.html",
-            "/api-docs",
-            "webjars/**"
+            "/BankAPI/h2/**/**",
+            "/BankAPI/swagger-ui/**/**",
+            "/BankAPI/swagger-ui.html",
+            "/BankAPI/api-docs",
+            "/BankAPI/webjars/**"
     };
 
     @Bean
