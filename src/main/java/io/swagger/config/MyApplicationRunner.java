@@ -22,18 +22,21 @@ public class MyApplicationRunner implements ApplicationRunner {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private MyWebSecurityConfig securityConfig;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         User firstUser = new User();
-        firstUser.setUsername("biniam");
-        firstUser.setEmail("biniam@inholland.nl");
-        firstUser.setPassword("secret");
+        firstUser.setUsername("biniam12");
+        firstUser.setFullname("biniam mehari");
+        firstUser.setPassword(securityConfig.passwordEncoder().encode("secret"));
         firstUser.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER, Role.ROLE_ADMIN)));
 
         User user2 = new User();
-        user2.setUsername("tommy");
-        user2.setEmail("tommy@inholland.nl");
-        user2.setPassword("secret");
+        user2.setUsername("tommy12");
+        user2.setUsername("tommy king");
+        user2.setPassword(securityConfig.passwordEncoder().encode("secret"));
         user2.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
 
         // create a list of user

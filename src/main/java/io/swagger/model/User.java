@@ -20,14 +20,13 @@ public class User {
     @SequenceGenerator(name = "users_seq", initialValue = 1)
     @GeneratedValue(generator = "users_seq", strategy = GenerationType.SEQUENCE)
     private Integer userId;
+    private String fullname;
     private String username;
-    private String email;
+    //private String email;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Role> roles;
     private String password;
     private Double dayLimit;
     private Double transactionLimit;
     private Double remainingDayLimit;
-
-
 }

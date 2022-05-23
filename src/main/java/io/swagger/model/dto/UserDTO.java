@@ -19,8 +19,8 @@ public class UserDTO   {
   @JsonProperty("username")
   private String username = null;
 
-  @JsonProperty("email")
-  private String email = null;
+  @JsonProperty("fullname")
+  private String fullname = null;
 
   @JsonProperty("password")
   private String password = null;

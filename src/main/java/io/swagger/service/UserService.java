@@ -40,9 +40,13 @@ public class UserService {
     }
 
     public User add(User user) {
-
+        // TODO: CHECK if exists already
         user.setPassword(passwordEncoder.encode(user.getPassword())); //encrypt password
         return userRepository.save(user); // saves and returns a user
     }
 
+    // TODO: method->GET USER BY ID
+
+
+    // TODO: method->GET ALL USERS
 }

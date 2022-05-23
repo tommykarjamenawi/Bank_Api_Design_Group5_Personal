@@ -24,12 +24,12 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
     JwtTokenFilter jwtTokenFilter;
 
     private static final String[] AUTH_WHITELIST = {
-            "/bankAPI/users/login",
-            "/BankAPI/h2/**/**",
-            "/BankAPI/swagger-ui/**/**",
-            "/BankAPI/swagger-ui.html",
-            "/BankAPI/api-docs",
-            "/BankAPI/webjars/**"
+            "/users/login",
+            "/h2/**/**",
+            "/swagger-ui/**/**",
+            "/swagger-ui.html",
+            "/api-docs",
+            "/webjars/**"
     };
 
     @Bean
