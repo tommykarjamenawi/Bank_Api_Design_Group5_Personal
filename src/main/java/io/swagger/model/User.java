@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.java.Log;
 
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.*;
 
@@ -31,6 +32,10 @@ public class User   {
   private Double dayLimit = 5000.00;
   private Double transactionLimit= 1000.00;
   private Double remainingDayLimit=0.00;
+
+
+  @OneToMany(cascade = CascadeType.ALL)
+  private List<Account> account;
 
   public User(String fullName, String email, String role, Double dayLimit, Double transactionLimit, Double remainingDayLimit) {
     this.fullName = fullName;
