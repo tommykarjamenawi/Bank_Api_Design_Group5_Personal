@@ -48,7 +48,8 @@ public class TransactionsApiController implements TransactionsApi {
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
-
+        // if start date == 0
+        // if end date == 0 preset the date
         Iterable<Transaction> transactions = transactionService.getAllTransactions(startDate, endDate);
         return new ResponseEntity<>(transactions, HttpStatus.OK);
 
@@ -63,8 +64,9 @@ public class TransactionsApiController implements TransactionsApi {
     public ResponseEntity<Transaction> transactionsPost(
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
             @Valid @RequestBody TransactionDTO body) {
-
-        try {
+            // Check weather the userId and account belongs to same user.
+        try { // check if account exists + check if amount is greater than zero
+            // send if the account enough balance
             Transaction transaction = new Transaction();
             transaction.setAmount(body.getAmount());
             transaction.setSenderIBANAccount(body.getFromAccount());
