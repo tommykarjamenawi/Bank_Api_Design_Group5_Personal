@@ -50,18 +50,12 @@ public class UsersApiController implements UsersApi {
         this.request = request;
     }
 
-    public ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) BigDecimal withOutAccount) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<User>>(objectMapper.readValue("[ {\n  \"remainingDayLimit\" : 500,\n  \"role\" : \"customer\",\n  \"dayLimit\" : 1000,\n  \"fullName\" : \"tommy king\",\n  \"transactionLimit\" : 1000,\n  \"userId\" : 50,\n  \"email\" : \"tommyk@inholland.nl\"\n}, {\n  \"remainingDayLimit\" : 500,\n  \"role\" : \"customer\",\n  \"dayLimit\" : 1000,\n  \"fullName\" : \"tommy king\",\n  \"transactionLimit\" : 1000,\n  \"userId\" : 50,\n  \"email\" : \"tommyk@inholland.nl\"\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<User>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+    public ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) Integer withOutAccount) {
+        // TODO: Implement get all users
+        // store list of users
+        List<User> users = userService.getAllUsers(skip, limit, withOutAccount);
 
-        return new ResponseEntity<List<User>>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
     }
 
     public LoginResponseDTO usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body) {

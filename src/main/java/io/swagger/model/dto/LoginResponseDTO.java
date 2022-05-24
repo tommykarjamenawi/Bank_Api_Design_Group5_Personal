@@ -15,7 +15,5 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 @NoArgsConstructor
 public class LoginResponseDTO {
-    private Integer userId;
-    private String email;
     private String token; // Returned JWT bearer token
 }

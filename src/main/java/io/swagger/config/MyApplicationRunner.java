@@ -5,6 +5,7 @@ import io.swagger.model.Role;
 import io.swagger.model.User;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
+import io.swagger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -23,6 +24,9 @@ public class MyApplicationRunner implements ApplicationRunner {
     private AccountRepository accountRepository;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private MyWebSecurityConfig securityConfig;
 
     @Override
@@ -35,14 +39,18 @@ public class MyApplicationRunner implements ApplicationRunner {
 
         User user2 = new User();
         user2.setUsername("tommy12");
-        user2.setUsername("tommy king");
+        user2.setFullname("tommy king");
         user2.setPassword(securityConfig.passwordEncoder().encode("secret"));
         user2.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
+
+
 
         // create a list of user
         List<User> users = new ArrayList<>(Arrays.asList(firstUser, user2));
         //List<User> users = List.of(firstUser);
         userRepository.saveAll(users);
+        // create 100 dummy users for testing
+        userService.create100RandomUsers();
 
         // Create an account for the BANK at system startup
         List<Account> accounts = List.of(new Account("NL01INHO0000000001",new User(), Double.MAX_VALUE, "bank"));
