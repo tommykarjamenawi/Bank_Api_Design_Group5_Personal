@@ -30,6 +30,8 @@ public class Account{
   private Double currentBalance;
   private String accountType;
 
+  private Integer userId;
+
 
   // to create the bank account
   public Account(String IBAN, User user,Double currentBalance, String accountType) {
