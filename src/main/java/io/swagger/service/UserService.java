@@ -61,19 +61,16 @@ public class UserService {
         }
 
         // loop limit times and start at skip + 1
-        List<User> users = new ArrayList<>();
-        for (int i = skip + 1; i <= skip + limit; i++) {
-            users.add(userRepository.findById(i).get());
-        }
-        return users;
+//        List<User> users = new ArrayList<>();
+//        for (int i = skip + 1; i <= skip + limit; i++) {
+//            users.add(userRepository.findById(i).get());
+//        }
+        return userRepository.findAllByUserIdAfterAndUserIdIsBefore(skip, (skip + limit + 1));
 
-
-        // returns all users if no parameters are given
-        //return (List<User>) userRepository.findAll();
     }
 
     public void create100RandomUsers() {
-        List<User> userss = new ArrayList<>();
+        List<User> users = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             User user = new User();
             String fullname = randomNameGenerator();
@@ -84,7 +81,7 @@ public class UserService {
             this.add(user);
         }
         // save all users
-        //userRepository.saveAll(userss);
+        //userRepository.saveAll(users);
 
     }
 
