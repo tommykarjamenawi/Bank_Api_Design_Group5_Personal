@@ -15,4 +15,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User findByEmail(String email) {
+        return userRepository.findByEmailAddress(email);
+    }
+
+    public User findById(Integer id) {
+        return userRepository.findUserByUserId(id);
+    }
+
 }

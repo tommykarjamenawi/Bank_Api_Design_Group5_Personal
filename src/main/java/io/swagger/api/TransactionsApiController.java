@@ -44,50 +44,31 @@ public class TransactionsApiController implements TransactionsApi {
     }
 
     public ResponseEntity<Iterable<Transaction>> transactionsGet(
-            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" , required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true)
+             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" , required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true)
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
-            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
+            @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
-        // if start date == 0
-        // if end date == 0 preset the date
+
+        if(startDate == null && endDate == null) {
+            startDate = LocalDateTime.of(2021, 05, 15, 12, 45);
+            endDate = LocalDateTime.of(2021, 11, 24, 14, 45);
+        }
         Iterable<Transaction> transactions = transactionService.getAllTransactions(startDate, endDate);
         return new ResponseEntity<>(transactions, HttpStatus.OK);
 
     }
 
-    @GetMapping("/accounts/{IBAN}/transactions")
-    public ResponseEntity<Iterable<Transaction>> getAllTransactionsFromAccount(@PathVariable(value = "IBAN") String iban) {
-            Iterable<Transaction> transactions = transactionService.getAllTransactionsByIBAN(iban);
-            return new ResponseEntity<>(transactions, HttpStatus.OK);
-    }
 
     public ResponseEntity<Transaction> transactionsPost(
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
             @Valid @RequestBody TransactionDTO body) {
             // Check weather the userId and account belongs to same user.
-        try { // check if account exists + check if amount is greater than zero
+         // check if account exists + check if amount is greater than zero
             // send if the account enough balance
-            Transaction transaction = new Transaction();
-            transaction.setAmount(body.getAmount());
-            transaction.setSenderIBANAccount(body.getFromAccount());
 
-            LocalDateTime today = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            String transactionDate = today.format(formatter);
 
-            LocalDateTime dateTime = LocalDateTime.parse(transactionDate, formatter);
-            transaction.setTimestamp(dateTime);
-            transaction.setRecieverIBANAccount(body.getToAccount());
-            transaction.setTransactionId(1);
-            transaction.setTransactionType(body.getTransactionType());
-            transaction.setUserPerformingId(2);
-
-            Transaction storeTransaction =  transactionService.createTransaction(transaction);
-            return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
-        }
-        catch (Exception ex) {
-            return new ResponseEntity<Transaction>(HttpStatus.BAD_GATEWAY);
-        }
+            //Transaction storeTransaction =  transactionService.createTransaction(transaction);
+            return new ResponseEntity<Transaction>(HttpStatus.OK);
 
     }
 

@@ -39,6 +39,8 @@ public class MyApplicationRunner implements ApplicationRunner {
         String str5 = "2018-12-14 16:30";
         String str6 = "2018-12-15 17:30";
         String str7 = "2018-12-16 18:30";
+        String str8 = "2021-05-15 12:45";
+        String str9 = "2021-11-24 14:45";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime dateTime =  LocalDateTime.parse(str, formatter);
         LocalDateTime dateTime2 = LocalDateTime.parse(str2, formatter);
@@ -47,6 +49,8 @@ public class MyApplicationRunner implements ApplicationRunner {
         LocalDateTime dateTime5 = LocalDateTime.parse(str5, formatter);
         LocalDateTime dateTime6 = LocalDateTime.parse(str6, formatter);
         LocalDateTime dateTime7 =  LocalDateTime.parse(str7, formatter);
+        LocalDateTime dateTime8 = LocalDateTime.parse(str8, formatter);
+        LocalDateTime dateTime9 = LocalDateTime.parse(str9, formatter);
 
 
         List<Transaction> transactions = List.of(
@@ -56,7 +60,10 @@ public class MyApplicationRunner implements ApplicationRunner {
                 new Transaction(2, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime4, 500.00),
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime5, 500.00),
                 new Transaction(2, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime6, 500.00),
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime7, 500.00)
+                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
+                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
+                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
+                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime9, 500.00)
         );
         userRepository.saveAll(users);
         transactionRepository.saveAll(transactions);

@@ -32,8 +32,8 @@ public class Transaction   {
   @GeneratedValue(generator = "transaction_seq", strategy = GenerationType.SEQUENCE)
   private Integer transactionId;
   private Integer userPerformingId;
-  private String senderIBANAccount;
-  private String recieverIBANAccount;
+  private String fromAccount;
+  private String toAccount;
   private Double amount ;
   private String transactionType;
   private java.time.LocalDateTime timestamp;
@@ -42,11 +42,11 @@ public class Transaction   {
   private Double balanceAfterTransfer;
 
 
-  public Transaction(Integer userPerformingId, String senderIBANAccount, String recieverIBANAccount, Double amount, String transactionType, java.time.LocalDateTime timestamp, Double balanceAfterTransfer) {
+  public Transaction(Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, java.time.LocalDateTime timestamp, Double balanceAfterTransfer) {
 
     this.userPerformingId = userPerformingId;
-    this.senderIBANAccount = senderIBANAccount;
-    this.recieverIBANAccount = recieverIBANAccount;
+    this.fromAccount = fromAccount;
+    this.toAccount = toAccount;
     this.amount = amount;
     this.transactionType = transactionType;
     this.timestamp = timestamp;
