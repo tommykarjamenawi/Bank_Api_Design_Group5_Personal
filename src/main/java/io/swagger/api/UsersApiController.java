@@ -4,11 +4,9 @@ import io.swagger.annotations.Api;
 import io.swagger.model.Account;
 import java.math.BigDecimal;
 
-import io.swagger.model.dto.LoginResponseDTO;
-import io.swagger.model.dto.TotalAmountResponseDTO;
-import io.swagger.model.dto.LoginDTO;
+import io.swagger.model.Role;
+import io.swagger.model.dto.*;
 import io.swagger.model.User;
-import io.swagger.model.dto.UserDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,6 +26,7 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
@@ -51,8 +50,6 @@ public class UsersApiController implements UsersApi {
     }
 
     public ResponseEntity<List<User>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) Integer withOutAccount) {
-        // TODO: Implement get all users
-        // store list of users
         List<User> users = userService.getAllUsers(skip, limit, withOutAccount);
 
         return new ResponseEntity<List<User>>(users, HttpStatus.OK);
@@ -64,20 +61,27 @@ public class UsersApiController implements UsersApi {
         return responseDTO;
     }
 
-    public ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "User to add", schema=@Schema()) @Valid @RequestBody UserDTO body) {
+    public ResponseEntity<UserResponseDTO> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "User to add", schema=@Schema()) @Valid @RequestBody UserDTO body) {
 
-        User user = new User();
-        user.setUsername(body.getUsername());
-        user.setFullname(body.getFullname());
-        user.setPassword(body.getPassword());
-        user.setRoles(body.getRoles());
-        user.setDayLimit(1500.00);
-        user.setTransactionLimit(500.00);
-        user.setRemainingDayLimit(1500.00);
+//        // array of roles
+//        List<Role> roles = new ArrayList<>();
+//        roles.add(Role.ROLE_USER);
+//
+//        User user = new User();
+//        user.setUsername(body.getUsername());
+//        user.setFullname(body.getFullname());
+//        user.setPassword(body.getPassword());
+//        user.setRoles(roles);
+//        user.setDayLimit(1500.00);
+//        user.setTransactionLimit(500.00);
+//        user.setRemainingDayLimit(1500.00);
 
-        User storeUser = userService.add(user);
-
-        return new ResponseEntity<User>(storeUser, HttpStatus.CREATED);
+        UserResponseDTO userResponseDTO = userService.addExternalUser(body);
+        if (userResponseDTO == null) {
+            // user already exists
+            return new ResponseEntity<UserResponseDTO>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.CREATED);
     }
 
     public ResponseEntity<List<Account>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {

@@ -7,11 +7,9 @@ package io.swagger.api;
 
 import io.swagger.model.Account;
 import java.math.BigDecimal;
-import io.swagger.model.dto.LoginResponseDTO;
-import io.swagger.model.dto.TotalAmountResponseDTO;
-import io.swagger.model.dto.LoginDTO;
+
+import io.swagger.model.dto.*;
 import io.swagger.model.User;
-import io.swagger.model.dto.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -81,7 +79,7 @@ public interface UsersApi {
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<User> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "User to add", schema=@Schema()) @Valid @RequestBody UserDTO body);
+    ResponseEntity<UserResponseDTO> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "User to add", schema=@Schema()) @Valid @RequestBody UserDTO body);
 
 
     @Operation(summary = "fetch accounts of a userId", description = "Returns an account for a user ", security = {

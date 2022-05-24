@@ -1,8 +1,11 @@
 package io.swagger.service;
 
+import io.swagger.config.MyWebSecurityConfig;
 import io.swagger.jwt.JwtTokenProvider;
 import io.swagger.model.Role;
 import io.swagger.model.User;
+import io.swagger.model.dto.UserDTO;
+import io.swagger.model.dto.UserResponseDTO;
 import io.swagger.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +33,8 @@ public class UserService {
     AuthenticationManager authenticationManager;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private MyWebSecurityConfig securityConfig;
 
     public String login(String username, String password) {
         String token = "";
@@ -44,32 +49,47 @@ public class UserService {
         return token;
     }
 
+    public UserResponseDTO addExternalUser(UserDTO userDTO) {
+        User userExists = userRepository.findByUsername(userDTO.getUsername());
+        if (userExists != null) {
+            return null;
+        }
+
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setFullname(userDTO.getFullname());
+        user.setPassword(securityConfig.passwordEncoder().encode(userDTO.getPassword()));
+        user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
+        user.setDayLimit(1500.00);
+        user.setTransactionLimit(500.00);
+        user.setRemainingDayLimit(1500.00);
+        UserResponseDTO userResponseDTO = new UserResponseDTO();
+
+        User newUser = userRepository.save(user);
+        userResponseDTO.setUser(newUser);
+        return userResponseDTO;
+    }
+
     public User add(User user) {
-        // TODO: CHECK if exists already
+        User existingUser = userRepository.findByUsername(user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword())); //encrypt password
         return userRepository.save(user); // saves and returns a user
     }
 
     // TODO: method->GET USER BY ID
 
-
-    // TODO: method->GET ALL USERS
     public List<User> getAllUsers(Integer skip, Integer limit, Integer withoutAccount) {
         // get all users without an account and skip and limit
         if (withoutAccount == 1) {
-
+            // TODO: get all users without an account
         }
 
-        // loop limit times and start at skip + 1
-//        List<User> users = new ArrayList<>();
-//        for (int i = skip + 1; i <= skip + limit; i++) {
-//            users.add(userRepository.findById(i).get());
-//        }
         return userRepository.findAllByUserIdAfterAndUserIdIsBefore(skip, (skip + limit + 1));
 
     }
 
     public void create100RandomUsers() {
+        // TODO: improve performance by creating 100 users at once
         List<User> users = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             User user = new User();
@@ -78,10 +98,16 @@ public class UserService {
             user.setFullname(fullname + i);
             user.setPassword(passwordEncoder.encode("secret"));
             user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
+            //users.add(user);
             this.add(user);
         }
-        // save all users
-        //userRepository.saveAll(users);
+        // save each user in the list
+//        for (User user : users) {
+//            userRepository.save(user);
+//        }
+//
+//        users.forEach(user -> userRepository.save(user));
+//        userRepository.saveAll(users);
 
     }
 
