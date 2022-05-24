@@ -48,9 +48,9 @@ public interface TransactionsApi {
         produces = { "application/json" }, 
         method = RequestMethod.GET)
     ResponseEntity<Iterable<Transaction>> transactionsGet(
-            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
+            @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "startDate", required = true) LocalDateTime startDate,
-            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
+            @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) LocalDateTime endDate);
 
 
@@ -70,7 +70,7 @@ public interface TransactionsApi {
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody TransactionDTO body);
+    ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody TransactionDTO body) throws Exception;
 
 }
 

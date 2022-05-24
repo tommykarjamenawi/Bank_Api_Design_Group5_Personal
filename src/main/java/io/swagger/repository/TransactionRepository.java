@@ -13,7 +13,8 @@ import java.util.List;
 public interface TransactionRepository extends CrudRepository<Transaction, Integer> {
     Iterable<Transaction> getTransactionByTimestamp(LocalDateTime timestamp);
 
-    @Query(value = "SELECT transactionId, transactionType, balanceAfterTransfer, userPerformingId  FROM Transaction WHERE timestamp BETWEEN :startDate AND :endDate")
+    @Query(value = "SELECT transactionId, userPerformingId, fromAccount, toAccount, amount, " +
+            " transactionType, timestamp, balanceAfterTransfer FROM Transaction WHERE timestamp BETWEEN :startDate AND :endDate")
     Iterable<Transaction> getAllTransactionsBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     Iterable<Transaction> getTransactionByFromAccount(String senderIBANumber);
