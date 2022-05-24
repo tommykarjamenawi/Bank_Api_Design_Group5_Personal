@@ -77,6 +77,12 @@ public class UserService {
     }
 
     // TODO: method->GET USER BY ID
+    public UserResponseDTO getUserById(Integer id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        UserResponseDTO userResponseDTO = new UserResponseDTO();
+        userResponseDTO.setUser(user);
+        return userResponseDTO;
+    }
 
     public List<User> getAllUsers(Integer skip, Integer limit, Integer withoutAccount) {
         // get all users without an account and skip and limit

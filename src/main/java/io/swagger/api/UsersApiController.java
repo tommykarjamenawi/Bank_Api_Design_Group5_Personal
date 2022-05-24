@@ -84,6 +84,7 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.CREATED);
     }
 
+    // TODO: 5/24/2022 implement get all account for 1 user
     public ResponseEntity<List<Account>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
@@ -98,20 +99,12 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<List<Account>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<User> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<User>(objectMapper.readValue("{\n  \"remainingDayLimit\" : 500,\n  \"role\" : \"customer\",\n  \"dayLimit\" : 1000,\n  \"fullName\" : \"tommy king\",\n  \"transactionLimit\" : 1000,\n  \"userId\" : 50,\n  \"email\" : \"tommyk@inholland.nl\"\n}", User.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<UserResponseDTO> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
+        UserResponseDTO userResponseDTO = userService.getUserById(userId);
+        return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.FOUND);
     }
 
+    // TODO: 5/24/2022 get total balance of all accounts for 1 user
     public ResponseEntity<TotalAmountResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
