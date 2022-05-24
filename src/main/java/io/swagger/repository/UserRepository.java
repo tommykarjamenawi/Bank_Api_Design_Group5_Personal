@@ -1,11 +1,12 @@
 package io.swagger.repository;
 
 import io.swagger.model.User;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
+import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends CrudRepository<User,Integer>{
-    User findByUsername(String username);
-    List<User> findAllByUserIdAfterAndUserIdIsBefore(int skip, int limit);
+    @Query("SELECT email FROM User WHERE email =:emailAddress")
+    User findByEmailAddress(@Param("emailAddress") String emailAddress);
+
 }

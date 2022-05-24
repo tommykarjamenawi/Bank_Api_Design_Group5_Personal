@@ -77,9 +77,8 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    // Tommy: I changed find by email to find by username....
-    public User findByUsername(String username) throws Exception {
-        User user = userRepository.findByUsername(username);
+    public User findByEmailAddress(String email) throws Exception {
+        User user = userRepository.findByEmailAddress(email);
         if (user == null) {
             throw new Exception("user cannot be null");
         }

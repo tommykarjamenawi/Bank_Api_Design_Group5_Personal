@@ -1,19 +1,16 @@
 package io.swagger.config;
 
-import io.swagger.model.Role;
 import io.swagger.model.Transaction;
 import io.swagger.model.User;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
-import io.swagger.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -21,34 +18,13 @@ public class MyApplicationRunner implements ApplicationRunner {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private TransactionRepository transactionRepository;
-    @Autowired
-    private UserService userService;
 
     @Autowired
-    private MyWebSecurityConfig securityConfig;
+    private TransactionRepository transactionRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception{
-        User firstUser = new User();
-        firstUser.setUsername("biniam12");
-        firstUser.setFullname("biniam mehari");
-        firstUser.setPassword(securityConfig.passwordEncoder().encode("secret"));
-        firstUser.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER, Role.ROLE_ADMIN)));
-
-        User user2 = new User();
-        user2.setUsername("tommy12");
-        user2.setFullname("tommy king");
-        user2.setPassword(securityConfig.passwordEncoder().encode("secret"));
-        user2.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
-
-        // create a list of user
-        List<User> users = new ArrayList<>(Arrays.asList(firstUser, user2));
-        //List<User> users = List.of(firstUser);
-        userRepository.saveAll(users);
-        // create 100 dummy users for testing
-        userService.create100RandomUsers();
+        List<User> users = List.of(new User("Biniam","Tommy@","customer",1000.00,500.00,0.00));
 
         // Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, java.time.LocalDateTime timestamp, Double balanceAfterTransfer
         String str = "2018-12-10 12:30";
@@ -84,6 +60,10 @@ public class MyApplicationRunner implements ApplicationRunner {
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime9, 500.00)
         );
+        userRepository.saveAll(users);
         transactionRepository.saveAll(transactions);
     }
+
+
+
 }
