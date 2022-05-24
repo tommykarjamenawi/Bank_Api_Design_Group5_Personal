@@ -1,8 +1,10 @@
 package io.swagger.config;
 
+import io.swagger.model.Account;
 import io.swagger.model.Role;
 import io.swagger.model.Transaction;
 import io.swagger.model.User;
+import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.service.UserService;
@@ -29,6 +31,9 @@ public class MyApplicationRunner implements ApplicationRunner {
     @Autowired
     private MyWebSecurityConfig securityConfig;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
     @Override
     public void run(ApplicationArguments args) throws Exception{
         User firstUser = new User();
@@ -49,6 +54,12 @@ public class MyApplicationRunner implements ApplicationRunner {
         userRepository.saveAll(users);
         // create 100 dummy users for testing
         userService.create100RandomUsers();
+
+        List<Account> accounts = List.of(
+            new Account("NL01INHO0000000001",new User(), Double.MAX_VALUE, "bank")
+        );
+
+        accountRepository.saveAll(accounts);
 
         // Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, java.time.LocalDateTime timestamp, Double balanceAfterTransfer
         String str = "2018-12-10 12:30";

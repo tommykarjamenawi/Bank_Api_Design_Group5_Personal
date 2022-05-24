@@ -124,4 +124,8 @@ public class UserService {
         }
         return name;
     }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 }

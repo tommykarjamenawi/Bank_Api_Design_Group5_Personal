@@ -4,10 +4,14 @@ import io.swagger.model.Account;
 import io.swagger.model.Transaction;
 import io.swagger.model.User;
 import io.swagger.model.dto.TransactionDTO;
+import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -22,6 +26,9 @@ public class TransactionService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
     public Iterable<Transaction> getAllTransactions(LocalDateTime startDate, LocalDateTime endDate) {
         return transactionRepository.getAllTransactionsBetween(startDate, endDate);
     }
@@ -30,27 +37,34 @@ public class TransactionService {
         return transactionRepository.getTransactionByFromAccount(senderIban);
     }
 
-    public Transaction createTransaction(String email, TransactionDTO transactionDTO) throws Exception {
-        /*email = "Tommy@";
-        User user = findByEmailAddress(email);*/
+    public Transaction createTransaction(String username, TransactionDTO transactionDTO) throws Exception {
+
+        // check if IBAN numbers of both accounts are the same
+        Transaction transaction = new Transaction();
+        if (transaction.getFromAccount() == transaction.getToAccount()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "IBAN numbers of from and to accounts cannot be the same");
+        }
+        User user = userRepository.findByUsername(username);
+        List<Account> accounts = findAccountById(user);
+
+        if (accounts == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not authorized to execute this task");
+        }
+
+        if(user.getTransactionLimit() <= 0.00 || user.getRemainingDayLimit() <= 0.00) {
+            throw new IllegalArgumentException("error! cannot create transaction");
+        }
 
         LocalDateTime today = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String dateTime = today.format(formatter);
         LocalDateTime transactionDate;
-
         try {
             transactionDate = LocalDateTime.parse(dateTime, formatter);
         }
         catch (DateTimeParseException ex) {
             throw new IllegalArgumentException("datetime format is invalid");
         }
-
-        /*if (user.getDayLimit() <= 0 || user.getTransactionLimit() <= 0) {
-            throw new IllegalArgumentException("cannot do transaction daylimit or transaction limit cannot be less than zero");
-        }*/
-
-        Transaction transaction = new Transaction();
 
         switch(transactionDTO.getTransactionType()) {
 
@@ -70,20 +84,19 @@ public class TransactionService {
         transaction.setTimestamp(transactionDate);
         transaction.setTransactionType(transactionDTO.getTransactionType());
         transaction.setAmount(transactionDTO.getAmount());
-        transaction.setUserPerformingId(1/*user.getUserId()*/);
-        //Double balanceLeft = user.getDayLimit() - transactionDTO.getAmount();
+        transaction.setUserPerformingId(user.getUserId());
+        Double balanceLeft = user.getDayLimit() - transactionDTO.getAmount();
 
-        transaction.setBalanceAfterTransfer(500.00);
+        transaction.setBalanceAfterTransfer(balanceLeft);
         return transactionRepository.save(transaction);
+
     }
 
-    // Tommy: I changed find by email to find by username....
-    public User findByUsername(String username) throws Exception {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new Exception("user cannot be null");
+    List<Account> findAccountById(User user) {
+        if(user == null || accountRepository.findAllByUserId(user.getUserId()).size() <= 0) {
+            return null;
         }
-        return user;
+        return accountRepository.findAllByUserId(user.getUserId());
     }
 
 
