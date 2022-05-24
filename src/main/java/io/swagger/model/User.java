@@ -22,7 +22,6 @@ public class User {
     private Integer userId;
     private String fullname;
     private String username;
-    //private String email;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Role> roles;
     private String password;
