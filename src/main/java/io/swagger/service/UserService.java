@@ -70,13 +70,13 @@ public class UserService {
         return userResponseDTO;
     }
 
+    // this method is only used on startup to create 100 dummy users
     public User add(User user) {
         User existingUser = userRepository.findByUsername(user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword())); //encrypt password
         return userRepository.save(user); // saves and returns a user
     }
 
-    // TODO: method->GET USER BY ID
     public UserResponseDTO getUserById(Integer id) {
         User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         UserResponseDTO userResponseDTO = new UserResponseDTO();
@@ -101,20 +101,20 @@ public class UserService {
             User user = new User();
             String fullname = randomNameGenerator();
             user.setUsername(fullname + i);
-            user.setFullname(fullname + i);
+            user.setFullname(fullname);
             user.setPassword(passwordEncoder.encode("secret"));
             user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
             //users.add(user);
             this.add(user);
         }
-        // save each user in the list
+        // save each user in the list (will not work for some reason)
 //        for (User user : users) {
 //            userRepository.save(user);
 //        }
 //
 //        users.forEach(user -> userRepository.save(user));
-//        userRepository.saveAll(users);
 
+//        userRepository.saveAll(users);
     }
 
     public String randomNameGenerator() {
