@@ -26,10 +26,9 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] AUTH_WHITELIST = {
             "/users/login",
             "/h2/**/**",
-            "/swagger-ui/**/**",
-            "/swagger-ui.html",
             "/api-docs",
-            "/webjars/**"
+            "/webjars/**",
+            "/swagger-resources/**/**"
     };
 
     @Bean
@@ -48,8 +47,9 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.authorizeRequests().antMatchers(AUTH_WHITELIST)
-                .permitAll().anyRequest().authenticated();
+        http.authorizeRequests()
+                .antMatchers("/swagger-ui/**/**").permitAll()
+                .anyRequest().authenticated();
 
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }
