@@ -96,7 +96,7 @@ public class UserService {
     public void create100RandomUsers() {
         // TODO: improve performance by creating 100 users at once
         List<User> users = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 40; i++) {
             User user = new User();
             String fullname = randomNameGenerator();
             user.setUsername(fullname + i);
