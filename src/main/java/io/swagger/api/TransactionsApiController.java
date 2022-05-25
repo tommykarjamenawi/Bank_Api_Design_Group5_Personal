@@ -1,25 +1,31 @@
 package io.swagger.api;
 
 import io.swagger.annotations.Api;
+import io.swagger.jwt.JwtTokenProvider;
 import io.swagger.model.Transaction;
+import io.swagger.model.User;
 import io.swagger.model.dto.TransactionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.service.TransactionService;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -38,7 +44,10 @@ public class TransactionsApiController implements TransactionsApi {
     @Autowired
     private TransactionService transactionService;
 
-    @org.springframework.beans.factory.annotation.Autowired
+    @Autowired
+    private UserService userService;
+
+    @Autowired
     public TransactionsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
@@ -49,29 +58,38 @@ public class TransactionsApiController implements TransactionsApi {
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
+
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+
         if(startDate == null && endDate == null) {
-            startDate = LocalDateTime.of(2021, 05, 15, 12, 45);
-            endDate = LocalDateTime.of(2021, 11, 24, 14, 45);
+            startDate = LocalDateTime.now();
+            endDate = LocalDateTime.now();
         }
-        Iterable<Transaction> transactions = transactionService.getAllTransactions(startDate, endDate);
-        return new ResponseEntity<>(transactions, HttpStatus.OK);
-
-    }
-
-    @GetMapping("/accounts/{IBAN}/transactions")
-    public ResponseEntity<Iterable<Transaction>> getAllTransactionsFromAccount(@PathVariable(value = "IBAN") String iban) {
-        Iterable<Transaction> transactions = transactionService.getAllTransactionsByIBAN(iban);
+        Iterable<Transaction> transactions = transactionService.
+                getAllTransactions(username, startDate, endDate);
         return new ResponseEntity<>(transactions, HttpStatus.OK);
     }
+
 
     public ResponseEntity<Transaction> transactionsPost(
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
             @Valid @RequestBody TransactionDTO body) throws Exception {
 
+            Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = userAuthentication.getName();
+            User user = userService.getUserByUsername(username);
+
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication token is null");
+            }
+
+            if(body.getFromAccount() == null || body.getToAccount() == null || body.getTransactionType() == null ||
+            body.getAmount() == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
+            }
             Transaction storeTransaction = transactionService.createTransaction("", body);
             return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
-            //return new ResponseEntity<Transaction>(HttpStatus.BAD_GATEWAY);
-
     }
 
 }

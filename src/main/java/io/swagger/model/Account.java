@@ -8,6 +8,7 @@ import lombok.extern.java.Log;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -29,6 +30,8 @@ public class Account{
 
   private Double currentBalance;
   private String accountType;
+
+  private Integer userId;
 
 
   // to create the bank account

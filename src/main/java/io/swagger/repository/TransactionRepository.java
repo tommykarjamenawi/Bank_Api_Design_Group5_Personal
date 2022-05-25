@@ -18,4 +18,9 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
     Iterable<Transaction> getAllTransactionsBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     Iterable<Transaction> getTransactionByFromAccount(String senderIBANumber);
+
+    List<Transaction> getTransactionByUserPerformingIdAndTimestampBetween(Integer userId, LocalDateTime dateFrom, LocalDateTime dateTo);
+
+    List<Transaction> getTransactionByToAccountAndTimestampBetween(String IBAN, LocalDateTime dateFrom, LocalDateTime dateTo);
+
 }

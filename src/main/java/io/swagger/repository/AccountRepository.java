@@ -16,5 +16,6 @@ public interface AccountRepository extends CrudRepository<Account, Integer> {
     @Query("select account from Account account where account.IBAN =:iban")
     Account getByIBAN(String iban);
 
+    List<Account> findAllByUserId(Integer userId);
 
 }
