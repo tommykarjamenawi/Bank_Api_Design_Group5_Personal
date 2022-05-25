@@ -44,7 +44,7 @@ public class AccountsApiController implements AccountsApi {
     @Autowired
     private AccountService accountService;
 
-    @org.springframework.beans.factory.annotation.Autowired
+    @Autowired
     public AccountsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
