@@ -56,7 +56,6 @@ public class AccountsApiController implements AccountsApi {
         //it allowed to delete with your role
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
-
     public ResponseEntity<Account> accountsIBANGet(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN) {
         // check if the userid is the same or the role=emplyee
         Account account = accountService.getAccountByIBAN(IBAN);
