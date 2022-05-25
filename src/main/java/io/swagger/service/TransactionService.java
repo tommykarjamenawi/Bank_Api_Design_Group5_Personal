@@ -1,6 +1,7 @@
 package io.swagger.service;
 
 import io.swagger.model.Account;
+import io.swagger.model.Role;
 import io.swagger.model.Transaction;
 import io.swagger.model.User;
 import io.swagger.model.dto.TransactionDTO;
@@ -12,9 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,12 +32,32 @@ public class TransactionService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public Iterable<Transaction> getAllTransactions(LocalDateTime startDate, LocalDateTime endDate) {
-        return transactionRepository.getAllTransactionsBetween(startDate, endDate);
-    }
+    public Iterable<Transaction> getAllTransactions(String username, LocalDateTime startDate, LocalDateTime endDate) {
+        // user id, two ibans filter all transaction for both dates
+        User user = userRepository.findByUsername(username);
+        Iterable<Transaction> transactions = new ArrayList<>();
 
-    public Iterable<Transaction> getAllTransactionsByIBAN(String senderIban) {
-        return transactionRepository.getTransactionByFromAccount(senderIban);
+        if (user == null || user.getUsername() != username) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username or password is incorrect");
+        }
+        List<Account> accounts = accountRepository.findAllByUserId(user.getUserId());
+        for (Role role: user.getRoles()) {
+
+            if (role == Role.ROLE_USER) {
+                transactions = transactionRepository.
+                        getTransactionByUserPerformingIdAndTimestampBetween(user.getUserId(),
+                                startDate, endDate);
+
+                for (Account account: accounts) {
+                    transactions = transactionRepository.getTransactionByToAccountAndTimestampBetween(account.getIBAN(), startDate, endDate);
+                }
+            }
+
+            if (role == Role.ROLE_ADMIN) {
+                transactions = transactionRepository.findAll();
+            }
+        }
+        return transactions;
     }
 
     public Transaction createTransaction(String username, TransactionDTO transactionDTO) throws Exception {
@@ -48,11 +71,11 @@ public class TransactionService {
         List<Account> accounts = findAccountById(user);
 
         if (accounts == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not authorized to execute this task");
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "accounts cannot be null");
         }
 
         if(user.getTransactionLimit() <= 0.00 || user.getRemainingDayLimit() <= 0.00) {
-            throw new IllegalArgumentException("error! cannot create transaction");
+            throw new IllegalArgumentException("error! cannot create transaction your transaction limit and day limit is 0.00");
         }
 
         LocalDateTime today = LocalDateTime.now();
@@ -69,11 +92,11 @@ public class TransactionService {
         switch(transactionDTO.getTransactionType()) {
 
             case "withdraw":
-                transaction.setFromAccount("ATM transfer");// maybe atm IBAN number here
+                transaction.setFromAccount("ATM transfer");
                 transaction.setToAccount(transactionDTO.getToAccount());
                 break;
             case "deposit":
-                transaction.setToAccount("ATM"); // maybe atm IBAN number here
+                transaction.setToAccount("ATM deposit");
                 transaction.setFromAccount(transactionDTO.getFromAccount());
                 break;
             case "bank transfer":
@@ -86,11 +109,11 @@ public class TransactionService {
         transaction.setAmount(transactionDTO.getAmount());
         transaction.setUserPerformingId(user.getUserId());
         Double balanceLeft = user.getDayLimit() - transactionDTO.getAmount();
-
         transaction.setBalanceAfterTransfer(balanceLeft);
         return transactionRepository.save(transaction);
-
     }
+
+
 
     List<Account> findAccountById(User user) {
         if(user == null || accountRepository.findAllByUserId(user.getUserId()).size() <= 0) {

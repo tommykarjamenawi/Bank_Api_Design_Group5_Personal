@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -57,20 +58,19 @@ public class TransactionsApiController implements TransactionsApi {
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
+
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+
         if(startDate == null && endDate == null) {
-            startDate = LocalDateTime.of(2021, 05, 15, 12, 45);
-            endDate = LocalDateTime.of(2021, 11, 24, 14, 45);
+            startDate = LocalDateTime.now();
+            endDate = LocalDateTime.now();
         }
-        Iterable<Transaction> transactions = transactionService.getAllTransactions(startDate, endDate);
-        return new ResponseEntity<>(transactions, HttpStatus.OK);
-
-    }
-
-    @GetMapping("/accounts/{IBAN}/transactions")
-    public ResponseEntity<Iterable<Transaction>> getAllTransactionsFromAccount(@PathVariable(value = "IBAN") String iban) {
-        Iterable<Transaction> transactions = transactionService.getAllTransactionsByIBAN(iban);
+        Iterable<Transaction> transactions = transactionService.
+                getAllTransactions(username, startDate, endDate);
         return new ResponseEntity<>(transactions, HttpStatus.OK);
     }
+
 
     public ResponseEntity<Transaction> transactionsPost(
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
@@ -88,11 +88,8 @@ public class TransactionsApiController implements TransactionsApi {
             body.getAmount() == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
             }
-
             Transaction storeTransaction = transactionService.createTransaction("", body);
             return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
-            //return new ResponseEntity<Transaction>(HttpStatus.BAD_GATEWAY);
-
     }
 
 }
