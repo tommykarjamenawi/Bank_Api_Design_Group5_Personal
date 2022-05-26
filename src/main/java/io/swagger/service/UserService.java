@@ -73,6 +73,9 @@ public class UserService {
     // this method is only used on startup to create 100 dummy users
     public User add(User user) {
         User existingUser = userRepository.findByUsername(user.getUsername());
+        user.setDayLimit(1500.00);
+        user.setTransactionLimit(500.00);
+        user.setRemainingDayLimit(1500.00);
         user.setPassword(passwordEncoder.encode(user.getPassword())); //encrypt password
         return userRepository.save(user); // saves and returns a user
     }
