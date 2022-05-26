@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.*;
 import javax.validation.Valid;
@@ -93,11 +94,13 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.FOUND);
     }
 
-    // TODO: 5/24/2022 get total balance of all accounts for 1 user
     public ResponseEntity<UserTotalBalanceResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
 
         User user = userService.getUserModelById(userId);
         Double totalBalance = userService.getUserTotalBalance(user);
+        if (totalBalance == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User has no account");
+        }
         UserTotalBalanceResponseDTO userTotalBalanceResponseDTO = new UserTotalBalanceResponseDTO();
         userTotalBalanceResponseDTO.setTotalBalance(totalBalance);
 
