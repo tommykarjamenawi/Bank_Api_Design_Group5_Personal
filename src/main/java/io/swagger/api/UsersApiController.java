@@ -8,6 +8,7 @@ import io.swagger.model.Role;
 import io.swagger.model.dto.*;
 import io.swagger.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.service.AccountService;
 import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -42,6 +43,9 @@ public class UsersApiController implements UsersApi {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AccountService accountService;
+
 
     @Autowired
     public UsersApiController(ObjectMapper objectMapper, HttpServletRequest request) {
@@ -69,18 +73,19 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.CREATED);
     }
 
-    // TODO: 5/24/2022 implement get all account for 1 user
     public ResponseEntity<List<Account>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<Account>>(objectMapper.readValue("[ {\n  \"dayLimit\" : 1000,\n  \"IBAN\" : \"NL14INHO1234567890\",\n  \"absoluteLimit\" : 0,\n  \"currentBalance\" : 100,\n  \"accountType\" : \"current\",\n  \"userId\" : 13\n}, {\n  \"dayLimit\" : 1000,\n  \"IBAN\" : \"NL14INHO1234567890\",\n  \"absoluteLimit\" : 0,\n  \"currentBalance\" : 100,\n  \"accountType\" : \"current\",\n  \"userId\" : 13\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<Account>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-        return new ResponseEntity<List<Account>>(HttpStatus.NOT_IMPLEMENTED);
+//        // get token from header
+//        String token = request.getHeader("Authorization");
+//        // get user from token
+//        User user = userService.getUserFromToken(token);
+
+        // get user from userId
+        User user = userService.getUserModelById(userId);
+
+        // get all account of the user
+        List<Account> accounts = accountService.getAllAccountsOfUser(user);
+
+        return new ResponseEntity<List<Account>>(accounts, HttpStatus.FOUND);
     }
 
     public ResponseEntity<UserResponseDTO> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
@@ -89,17 +94,14 @@ public class UsersApiController implements UsersApi {
     }
 
     // TODO: 5/24/2022 get total balance of all accounts for 1 user
-    public ResponseEntity<TotalAmountResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<TotalAmountResponseDTO>(objectMapper.readValue("{\n  \"totalAmount\" : 2000\n}", TotalAmountResponseDTO.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<TotalAmountResponseDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-        return new ResponseEntity<TotalAmountResponseDTO>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<UserTotalBalanceResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
+
+        User user = userService.getUserModelById(userId);
+        Double totalBalance = userService.getUserTotalBalance(user);
+        UserTotalBalanceResponseDTO userTotalBalanceResponseDTO = new UserTotalBalanceResponseDTO();
+        userTotalBalanceResponseDTO.setTotalBalance(totalBalance);
+
+        return new ResponseEntity<UserTotalBalanceResponseDTO>(userTotalBalanceResponseDTO, HttpStatus.OK);
     }
 
 }

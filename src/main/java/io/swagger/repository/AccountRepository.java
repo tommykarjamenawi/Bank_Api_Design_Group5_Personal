@@ -18,4 +18,12 @@ public interface AccountRepository extends CrudRepository<Account, Integer> {
 
     List<Account> findAllByUserId(Integer userId);
 
+    // find all accounts belonging to a user
+    List<Account> findAllByUser(User user);
+
+    // get sum of all accounts currentBalance where account contains user
+    @Query("select sum(account.currentBalance) from Account account where account.user =:user")
+    Double getSumOfAllAccounts(User user);
+
+
 }
