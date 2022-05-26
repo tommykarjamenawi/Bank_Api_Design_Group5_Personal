@@ -8,6 +8,7 @@ import io.swagger.model.Transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.dto.AccountResponseDTO;
 import io.swagger.service.AccountService;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -45,27 +46,31 @@ public class AccountsApiController implements AccountsApi {
     private AccountService accountService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     public AccountsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
     }
 
-    public ResponseEntity<Void> accountsIBANDelete(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN) {
+    public ResponseEntity<Void> accountsIBANDelete(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
         //  if (employee) check if the tocken is employee
         accountService.deleteAccount(IBAN);
         //it allowed to delete with your role
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
-    public ResponseEntity<Account> accountsIBANGet(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN) {
+
+    public ResponseEntity<Account> accountsIBANGet(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
         // check if the userid is the same or the role=emplyee
         Account account = accountService.getAccountByIBAN(IBAN);
-        if (account==null)
+        if (account == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
 
-        return new ResponseEntity<Account>(account,HttpStatus.OK);
+        return new ResponseEntity<Account>(account, HttpStatus.OK);
     }
 
-    public ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("IBAN") Integer IBAN,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "minValue", required = true) Integer minValue,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
+    public ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("IBAN") Integer IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "minValue", required = true) Integer minValue, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -79,10 +84,15 @@ public class AccountsApiController implements AccountsApi {
         return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<AccountResponseDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema=@Schema()) @Valid @RequestBody AccountDTO body) {
+    public ResponseEntity<AccountResponseDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema = @Schema()) @Valid @RequestBody AccountDTO body) {
 
-        ModelMapper modelMapper = new ModelMapper();
-        Account account = modelMapper.map(body, Account.class);
+//        ModelMapper modelMapper = new ModelMapper();
+//        Account account = modelMapper.map(body, Account.class);
+        Account account = new Account();
+        account.setIBAN(account.generateIBAN());
+        account.setAccountType(body.getAccountType());
+        account.setUser(userService.getUserModelById(body.getUserId()));
+
         account = accountService.createAccount(account);
 //        if(body.getUserId()>0) {  // this check will be updates later after we made getuserbyid token and role
 //            if (body.getAccountType().equals("current")) {
@@ -110,10 +120,10 @@ public class AccountsApiController implements AccountsApi {
         AccountResponseDTO accountResponseDTO = new AccountResponseDTO();
         accountResponseDTO.setIBAN(account.getIBAN());
         accountResponseDTO.setAccountType(account.getAccountType());
-        return new ResponseEntity<AccountResponseDTO>(accountResponseDTO,HttpStatus.CREATED);
+        return new ResponseEntity<AccountResponseDTO>(accountResponseDTO, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<List<Account>> getAccounts(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip,@NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit) {
+    public ResponseEntity<List<Account>> getAccounts(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users", required = true, schema = @Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users", required = true, schema = @Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {

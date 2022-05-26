@@ -21,13 +21,13 @@ public class AccountService {
     }
 
 
-    public boolean checkCurrentAccount(User userId) {
-        List<Account> accounts = accountRepository.checkCurrentAccount(userId,"current");
-        if(accounts.isEmpty()){
-            return false;
-        }
-        return true;
-    }
+//    public boolean checkCurrentAccount(User userId) {
+//        List<Account> accounts = accountRepository.checkCurrentAccount(userId,"current");
+//        if(accounts.isEmpty()){
+//            return false;
+//        }
+//        return true;
+//    }
 
     public void deleteAccount(String iban) {
         Account accountToDelete = accountRepository.getByIBAN(iban);

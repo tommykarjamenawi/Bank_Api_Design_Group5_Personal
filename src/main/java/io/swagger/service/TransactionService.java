@@ -40,7 +40,7 @@ public class TransactionService {
         if (user == null || user.getUsername() != username) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username or password is incorrect");
         }
-        List<Account> accounts = accountRepository.findAllByUserId(user.getUserId());
+        List<Account> accounts = accountRepository.findAllByUser(user);
         for (Role role: user.getRoles()) {
 
             if (role == Role.ROLE_USER) {
@@ -116,10 +116,10 @@ public class TransactionService {
 
 
     List<Account> findAccountById(User user) {
-        if(user == null || accountRepository.findAllByUserId(user.getUserId()).size() <= 0) {
+        if(user == null || accountRepository.findAllByUser(user).size() <= 0) {
             return null;
         }
-        return accountRepository.findAllByUserId(user.getUserId());
+        return accountRepository.findAllByUser(user);
     }
 
 
