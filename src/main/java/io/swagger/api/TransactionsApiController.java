@@ -58,7 +58,7 @@ public class TransactionsApiController implements TransactionsApi {
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
-
+            // change localdate to string and parse to it to date not localdate
         String token = request.getHeader("Authorization");
         User user = userService.getUserFromToken(token);
 

@@ -86,8 +86,8 @@ public class MyApplicationRunner implements ApplicationRunner {
 
 
         List<Transaction> transactions = List.of(
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime, 500.00),
-                new Transaction(2, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime2, 500.00),
+                new Transaction(1, "NL21INHO0123400001", "NL21INHO0123400001", 2000.00, "bank transfer", dateTime, 500.00)
+                /*new Transaction(2, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime2, 500.00),
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime3, 500.00),
                 new Transaction(2, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime4, 500.00),
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime5, 500.00),
@@ -95,7 +95,7 @@ public class MyApplicationRunner implements ApplicationRunner {
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime9, 500.00)
+                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime9, 500.00)*/
         );
         transactionRepository.saveAll(transactions);
     }

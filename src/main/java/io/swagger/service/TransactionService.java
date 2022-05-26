@@ -32,16 +32,19 @@ public class TransactionService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public Iterable<Transaction> getAllTransactions(String username, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<Transaction> getAllTransactions(String username, LocalDateTime startDate, LocalDateTime endDate) {
         // user id, two ibans filter all transaction for both dates
+
+        // use date, today
         User user = userRepository.findByUsername(username);
-        //Iterable<Transaction> transactions = new ArrayList<>();
+        List<Transaction> transactions = new ArrayList<>();
 
         if (user == null || user.getUsername() != username) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username or password is incorrect");
         }
+
         List<Account> accounts = accountRepository.findAllByUserId(user.getUserId());
-        /*for (Role role: user.getRoles()) {
+        for (Role role: user.getRoles()) {
 
             if (role == Role.ROLE_USER) {
                 transactions = transactionRepository.
@@ -55,10 +58,10 @@ public class TransactionService {
             }
 
             if (role == Role.ROLE_ADMIN) {
-                transactions = transactionRepository.findAll();
+                transactions = (List<Transaction>) transactionRepository.findAll();
             }
-        }*/
-        return transactionRepository.findAll();
+        }
+        return transactions;
     }
 
     public Transaction createTransaction(String username, TransactionDTO transactionDTO) throws Exception {
