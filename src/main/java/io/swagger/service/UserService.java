@@ -90,9 +90,9 @@ public class UserService {
     public List<User> getAllUsers(Integer skip, Integer limit, Integer withoutAccount) {
         // get all users without an account and skip and limit
         if (withoutAccount == 1) {
-            // TODO: get all users without an account
+            // find users with no connected account
+            return userRepository.findAllByAccountsIsNull();
         }
-
         return userRepository.findAllByUserIdAfterAndUserIdIsBefore(skip, (skip + limit + 1));
     }
 
@@ -113,9 +113,7 @@ public class UserService {
 //        for (User user : users) {
 //            userRepository.save(user);
 //        }
-//
 //        users.forEach(user -> userRepository.save(user));
-
 //        userRepository.saveAll(users);
     }
 
