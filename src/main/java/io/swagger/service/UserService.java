@@ -2,10 +2,12 @@ package io.swagger.service;
 
 import io.swagger.config.MyWebSecurityConfig;
 import io.swagger.jwt.JwtTokenProvider;
+import io.swagger.model.Account;
 import io.swagger.model.Role;
 import io.swagger.model.User;
 import io.swagger.model.dto.UserDTO;
 import io.swagger.model.dto.UserResponseDTO;
+import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,9 @@ public class UserService {
     AuthenticationManager authenticationManager;
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
     @Autowired
     private MyWebSecurityConfig securityConfig;
 
@@ -87,12 +92,16 @@ public class UserService {
         return userResponseDTO;
     }
 
+    public User getUserModelById(Integer id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
     public List<User> getAllUsers(Integer skip, Integer limit, Integer withoutAccount) {
         // get all users without an account and skip and limit
         if (withoutAccount == 1) {
-            // TODO: get all users without an account
+            // find users with no connected account
+            return userRepository.findAllByAccountsIsNull();
         }
-
         return userRepository.findAllByUserIdAfterAndUserIdIsBefore(skip, (skip + limit + 1));
     }
 
@@ -113,10 +122,17 @@ public class UserService {
 //        for (User user : users) {
 //            userRepository.save(user);
 //        }
-//
 //        users.forEach(user -> userRepository.save(user));
-
 //        userRepository.saveAll(users);
+    }
+
+    public User getUserFromToken(String token) {
+        String username = jwtTokenProvider.getUsername(token);
+        return userRepository.findByUsername(username);
+    }
+
+    public Double getUserTotalBalance(User user) {
+        return accountRepository.getSumOfAllAccounts(user);
     }
 
     public String randomNameGenerator() {

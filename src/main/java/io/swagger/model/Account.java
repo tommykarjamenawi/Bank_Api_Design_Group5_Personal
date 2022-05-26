@@ -1,5 +1,6 @@
 package io.swagger.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class Account{
   private String IBAN;
 
   @ManyToOne
+  @JsonIgnoreProperties({"accounts"})
   private User user;
 
   private Double currentBalance;

@@ -56,7 +56,9 @@ public class MyApplicationRunner implements ApplicationRunner {
         userService.create100RandomUsers();
 
         List<Account> accounts = List.of(
-            new Account("NL01INHO0000000001",user2, Double.MAX_VALUE, "bank")
+            new Account("NL01INHO0000000001",firstUser, Double.MAX_VALUE, "bank"),
+                new Account("NL21INHO0123400001",user2, 50.00, "saving"),
+                new Account("NL21INHO0123400001",user2, 75.00, "current")
         );
 
         accountRepository.saveAll(accounts);
