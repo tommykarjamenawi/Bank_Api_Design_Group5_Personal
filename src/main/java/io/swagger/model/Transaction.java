@@ -31,7 +31,7 @@ public class Transaction   {
   private Integer userPerformingId;
   private String fromAccount;
   private String toAccount;
-  private Double amount ;
+  private Double amount;
   private String transactionType;
   private LocalDateTime timestamp;
   private Double balanceAfterTransfer;
