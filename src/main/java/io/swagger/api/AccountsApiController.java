@@ -2,6 +2,7 @@ package io.swagger.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.model.Account;
+import io.swagger.model.Role;
 import io.swagger.model.User;
 import io.swagger.model.dto.AccountDTO;
 import io.swagger.model.Transaction;
@@ -28,6 +29,7 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
@@ -48,6 +50,7 @@ public class AccountsApiController implements AccountsApi {
     @Autowired
     private UserService userService;
 
+
     @Autowired
     public AccountsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
@@ -56,8 +59,14 @@ public class AccountsApiController implements AccountsApi {
 
     public ResponseEntity<Void> accountsIBANDelete(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
         //  if (employee) check if the tocken is employee
-        accountService.deleteAccount(IBAN);
-        //it allowed to delete with your role
+//        String token = request.getHeader("Authorization");
+//        User user = userService.getUserFromToken(token);
+
+        //if(user.getRoles().equals(Role.ROLE_ADMIN) || user.getAccounts().contains(IBAN)){
+            accountService.deleteAccount(IBAN);
+      // }
+       // else
+      //      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You dont have authorization to delete this account");
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
@@ -123,18 +132,11 @@ public class AccountsApiController implements AccountsApi {
         return new ResponseEntity<AccountResponseDTO>(accountResponseDTO, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<List<Account>> getAccounts(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users", required = true, schema = @Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users", required = true, schema = @Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<Account>>(objectMapper.readValue("[ {\n  \"dayLimit\" : 1000,\n  \"IBAN\" : \"NL14INHO1234567890\",\n  \"absoluteLimit\" : 0,\n  \"currentBalance\" : 100,\n  \"accountType\" : \"current\",\n  \"userId\" : 13\n}, {\n  \"dayLimit\" : 1000,\n  \"IBAN\" : \"NL14INHO1234567890\",\n  \"absoluteLimit\" : 0,\n  \"currentBalance\" : 100,\n  \"accountType\" : \"current\",\n  \"userId\" : 13\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<Account>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+    public ResponseEntity<List<Account>> getAccounts(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users", required = false, schema = @Schema()) @Valid @RequestParam(value = "skip", required = false) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users", required = false, schema = @Schema()) @Valid @RequestParam(value = "limit", required = false) Integer limit) {
+        List<Account> accounts = accountService.getAllAccounts();
 
-        return new ResponseEntity<List<Account>>(HttpStatus.NOT_IMPLEMENTED);
+
+        return new ResponseEntity<List<Account>>(accounts,HttpStatus.OK);
     }
 
 }

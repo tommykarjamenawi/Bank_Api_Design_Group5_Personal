@@ -44,4 +44,8 @@ public class AccountService {
     public List<Account> getAllAccountsOfUser(User user) {
         return accountRepository.findAllByUser(user);
     }
+
+    public List<Account> getAllAccounts(){
+        return (List<Account>) accountRepository.findAll();
+    }
 }
