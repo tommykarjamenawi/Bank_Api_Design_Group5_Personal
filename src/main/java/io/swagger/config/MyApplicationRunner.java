@@ -61,6 +61,9 @@ public class MyApplicationRunner implements ApplicationRunner {
 
         accountRepository.saveAll(accounts);
 
+    }
+
+    public void relationsBetweenTransactionsAndAccount() {
         // Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, java.time.LocalDateTime timestamp, Double balanceAfterTransfer
         String str = "2018-12-10 12:30";
         String str2 = "2018-12-11 13:30";
@@ -71,6 +74,7 @@ public class MyApplicationRunner implements ApplicationRunner {
         String str7 = "2018-12-16 18:30";
         String str8 = "2021-05-15 12:45";
         String str9 = "2021-11-24 14:45";
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime dateTime =  LocalDateTime.parse(str, formatter);
         LocalDateTime dateTime2 = LocalDateTime.parse(str2, formatter);
@@ -81,7 +85,6 @@ public class MyApplicationRunner implements ApplicationRunner {
         LocalDateTime dateTime7 =  LocalDateTime.parse(str7, formatter);
         LocalDateTime dateTime8 = LocalDateTime.parse(str8, formatter);
         LocalDateTime dateTime9 = LocalDateTime.parse(str9, formatter);
-
 
         List<Transaction> transactions = List.of(
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime, 500.00),
@@ -95,6 +98,7 @@ public class MyApplicationRunner implements ApplicationRunner {
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
                 new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime9, 500.00)
         );
+
         transactionRepository.saveAll(transactions);
     }
 }

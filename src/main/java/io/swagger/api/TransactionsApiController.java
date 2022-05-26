@@ -72,6 +72,8 @@ public class TransactionsApiController implements TransactionsApi {
     }
 
 
+
+
     public ResponseEntity<Transaction> transactionsPost(
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
             @Valid @RequestBody TransactionDTO body) throws Exception {
@@ -88,7 +90,7 @@ public class TransactionsApiController implements TransactionsApi {
             body.getAmount() == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
             }
-            Transaction storeTransaction = transactionService.createTransaction("", body);
+            Transaction storeTransaction = transactionService.createTransaction(username, body);
             return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
     }
 

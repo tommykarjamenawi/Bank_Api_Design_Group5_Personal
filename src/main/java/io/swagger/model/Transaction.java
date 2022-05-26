@@ -37,6 +37,7 @@ public class Transaction   {
   private Double balanceAfterTransfer;
 
 
+
   public Transaction(Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, LocalDateTime timestamp, Double balanceAfterTransfer) {
     this.transactionId = transactionId;
     this.userPerformingId = userPerformingId;
