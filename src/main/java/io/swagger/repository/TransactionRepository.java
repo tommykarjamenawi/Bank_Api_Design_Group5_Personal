@@ -23,4 +23,5 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
 
     List<Transaction> getTransactionByToAccountAndTimestampBetween(String IBAN, LocalDateTime dateFrom, LocalDateTime dateTo);
 
+    List<Transaction> getTransactionByFromAccountAndTimestampBetween(String IBAN, LocalDateTime startDate, LocalDateTime endDate);
 }

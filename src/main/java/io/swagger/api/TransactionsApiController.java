@@ -59,15 +59,15 @@ public class TransactionsApiController implements TransactionsApi {
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
 
-        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = userAuthentication.getName();
+        String token = request.getHeader("Authorization");
+        User user = userService.getUserFromToken(token);
 
         if(startDate == null && endDate == null) {
             startDate = LocalDateTime.now();
             endDate = LocalDateTime.now();
         }
         Iterable<Transaction> transactions = transactionService.
-                getAllTransactions(username, startDate, endDate);
+                getAllTransactions(user.getUsername(), startDate, endDate);
         return new ResponseEntity<>(transactions, HttpStatus.OK);
     }
 
