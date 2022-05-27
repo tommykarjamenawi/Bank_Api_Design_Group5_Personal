@@ -13,7 +13,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +51,7 @@ public class MyApplicationRunner implements ApplicationRunner {
         //List<User> users = List.of(firstUser);
         userRepository.saveAll(users);
         // create 100 dummy users for testing
-        userService.create100RandomUsers();
+        userService.create50RandomUsers();
 
         List<Account> accounts = List.of(
             new Account("NL01INHO0000000001",firstUser, Double.MAX_VALUE, "bank"),

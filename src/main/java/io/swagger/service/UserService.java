@@ -2,7 +2,6 @@ package io.swagger.service;
 
 import io.swagger.config.MyWebSecurityConfig;
 import io.swagger.jwt.JwtTokenProvider;
-import io.swagger.model.Account;
 import io.swagger.model.Role;
 import io.swagger.model.User;
 import io.swagger.model.dto.UserDTO;
@@ -18,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -96,10 +94,9 @@ public class UserService {
         return userRepository.findAllByUserIdAfterAndUserIdIsBefore(skip, (skip + limit + 1));
     }
 
-    public void create100RandomUsers() {
-        // TODO: improve performance by creating 100 users at once
+    public void create50RandomUsers() {
         List<User> users = new ArrayList<>();
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 50; i++) {
             User user = new User();
             String fullname = randomNameGenerator();
             user.setUsername(fullname + i);
@@ -107,15 +104,8 @@ public class UserService {
             user.setPassword(passwordEncoder.encode("secret"));
             user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
             users.add(user);
-            //this.add(user);
         }
-        // save each user in the list (will not work for some reason)
-//        for (User user : users) {
-//            userRepository.save(user);
-//        }
-//        users.forEach(user -> userRepository.save(user));
-        Iterable<User> iterable = users;
-        userRepository.saveAll(iterable);
+        userRepository.saveAll(users);
     }
 
     public User getUserFromToken(String token) {
