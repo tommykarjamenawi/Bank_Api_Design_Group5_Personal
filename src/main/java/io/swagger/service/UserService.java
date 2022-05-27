@@ -16,7 +16,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -124,6 +123,20 @@ public class UserService {
             name += (char) (Math.random() * 26 + 'a');
         }
         return name;
+    }
+
+    public User createUser(String username, String fullname, String password, Integer roles) {
+        User user = new User();
+        user.setUsername(username);
+        user.setFullname(fullname);
+        user.setPassword(passwordEncoder.encode(password));
+        // if role 1, create employee else create customer
+        if (roles == 1) {
+            user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER, Role.ROLE_ADMIN)));
+        } else {
+            user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
+        }
+        return user;
     }
 
     public User getUserByUsername(String username) {
