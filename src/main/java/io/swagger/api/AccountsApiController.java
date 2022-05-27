@@ -59,22 +59,24 @@ public class AccountsApiController implements AccountsApi {
 
     public ResponseEntity<Void> accountsIBANDelete(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
         //  if (employee) check if the tocken is employee
-//        String token = request.getHeader("Authorization");
-//        User user = userService.getUserFromToken(token);
+        String token = request.getHeader("Authorization");
+        User user = userService.getUserFromToken(token);
 
-        //if(user.getRoles().equals(Role.ROLE_ADMIN) || user.getAccounts().contains(IBAN)){
-            accountService.deleteAccount(IBAN);
-      // }
-       // else
-      //      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You dont have authorization to delete this account");
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        if(user.getRoles().equals(Role.ROLE_ADMIN)){
+            //accountService.deleteAccount(IBAN);
+       }
+        else
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You dont have authorization to delete this account");
+        return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
     }
 
     public ResponseEntity<Account> accountsIBANGet(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
         // check if the userid is the same or the role=emplyee
-        Account account = accountService.getAccountByIBAN(IBAN);
-        if (account == null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
+       // Account account = accountService.getAccountByIBAN(IBAN);
+       // if (account == null)
+         //   throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
+        Account account = new Account();
+        account.setAccountType("saving");
 
         return new ResponseEntity<Account>(account, HttpStatus.OK);
     }
