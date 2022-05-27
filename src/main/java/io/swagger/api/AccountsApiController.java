@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,27 +60,39 @@ public class AccountsApiController implements AccountsApi {
     }
 
     public ResponseEntity<Void> accountsIBANDelete(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
-        //  if (employee) check if the tocken is employee
-        String token = request.getHeader("Authorization");
-        User user = userService.getUserFromToken(token);
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
+        //receiving the account form database
+        Account account = accountService.findByIBAN(IBAN);
 
-        if(user.getRoles().equals(Role.ROLE_ADMIN)){
-            //accountService.deleteAccount(IBAN);
-       }
+        if(user.getRoles().contains(Role.ROLE_ADMIN) || user.getAccounts().contains(account)){
+            accountService.deleteAccount(account);
+        }
         else
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You dont have authorization to delete this account");
+
+
+
         return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
     }
 
     public ResponseEntity<Account> accountsIBANGet(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
-        // check if the userid is the same or the role=emplyee
-       // Account account = accountService.getAccountByIBAN(IBAN);
-       // if (account == null)
-         //   throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
-        Account account = new Account();
-        account.setAccountType("saving");
+        // getes the data of a user from the token
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
 
-        return new ResponseEntity<Account>(account, HttpStatus.OK);
+        //receiving the account form database
+        Account account = accountService.findByIBAN(IBAN);
+
+        //check if the user is owner of the account or admin(employee)
+        if(user.getRoles().contains(Role.ROLE_ADMIN) || user.getAccounts().contains(account)){
+            return new ResponseEntity<Account>(account, HttpStatus.OK);
+        }
+        else
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You dont have authorization to get this account information");
+
     }
 
     public ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("IBAN") Integer IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "minValue", required = true) Integer minValue, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
@@ -97,35 +111,13 @@ public class AccountsApiController implements AccountsApi {
 
     public ResponseEntity<AccountResponseDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema = @Schema()) @Valid @RequestBody AccountDTO body) {
 
-//        ModelMapper modelMapper = new ModelMapper();
-//        Account account = modelMapper.map(body, Account.class);
         Account account = new Account();
         account.setIBAN(account.generateIBAN());
         account.setAccountType(body.getAccountType());
         account.setUser(userService.getUserModelById(body.getUserId()));
 
         account = accountService.createAccount(account);
-//        if(body.getUserId()>0) {  // this check will be updates later after we made getuserbyid token and role
-//            if (body.getAccountType().equals("current")) {
-//                account.setIBAN(account.generateIBAN());
-//                account = accountService.createAccount(account);
-//            } else if (body.getAccountType().equals("saving")) {
-//                User user = new User();
-//                user.setUserId(body.getUserId());
-////                   boolean check = accountService.checkCurrentAccount(user);
-////                   if (check){
-//                account.setIBAN(account.generateIBAN());
-//                account = accountService.createAccount(account);
-////                   }else {
-////                       throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You need to have current account first");
-////                   }
-//
-//            } else {
-//                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Account needs to be either type: current or saving");
-//            }
-//        }else {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be registerd as a user");
-//        }
+
 
 
         AccountResponseDTO accountResponseDTO = new AccountResponseDTO();
