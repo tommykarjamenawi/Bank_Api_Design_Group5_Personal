@@ -47,9 +47,6 @@ public class MyApplicationRunner implements ApplicationRunner {
         user2.setFullname("tommy king");
         user2.setPassword(securityConfig.passwordEncoder().encode("secret"));
         user2.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
-        user2.setDayLimit(2000.00);
-        user2.setTransactionLimit(500.00);
-        user2.setRemainingDayLimit(100.00);
         // create a list of user
         List<User> users = new ArrayList<>(Arrays.asList(firstUser, user2));
         //List<User> users = List.of(firstUser);

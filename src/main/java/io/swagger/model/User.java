@@ -26,9 +26,9 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Role> roles;
     private String password;
-    private Double dayLimit;
-    private Double transactionLimit;
-    private Double remainingDayLimit;
+    private Double dayLimit = 2000.00;
+    private Double transactionLimit = 500.00;
+    private Double remainingDayLimit = 2000.00;
     @OneToMany(mappedBy = "user")
     @JsonIgnoreProperties({"user"})
     private List<Account> accounts = null;

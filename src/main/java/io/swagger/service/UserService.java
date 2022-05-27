@@ -27,15 +27,12 @@ import java.util.List;
 public class UserService {
     @Autowired
     JwtTokenProvider jwtTokenProvider;
-
     @Autowired
     PasswordEncoder passwordEncoder;
-
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     AccountRepository accountRepository;
     @Autowired
@@ -65,9 +62,6 @@ public class UserService {
         user.setFullname(userDTO.getFullname());
         user.setPassword(securityConfig.passwordEncoder().encode(userDTO.getPassword()));
         user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
-        user.setDayLimit(1500.00);
-        user.setTransactionLimit(500.00);
-        user.setRemainingDayLimit(1500.00);
         UserResponseDTO userResponseDTO = new UserResponseDTO();
 
         User newUser = userRepository.save(user);
@@ -78,9 +72,6 @@ public class UserService {
     // this method is only used on startup to create 100 dummy users
     public User add(User user) {
         User existingUser = userRepository.findByUsername(user.getUsername());
-        user.setDayLimit(1500.00);
-        user.setTransactionLimit(500.00);
-        user.setRemainingDayLimit(1500.00);
         user.setPassword(passwordEncoder.encode(user.getPassword())); //encrypt password
         return userRepository.save(user); // saves and returns a user
     }
@@ -115,15 +106,16 @@ public class UserService {
             user.setFullname(fullname);
             user.setPassword(passwordEncoder.encode("secret"));
             user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
-            //users.add(user);
-            this.add(user);
+            users.add(user);
+            //this.add(user);
         }
         // save each user in the list (will not work for some reason)
 //        for (User user : users) {
 //            userRepository.save(user);
 //        }
 //        users.forEach(user -> userRepository.save(user));
-//        userRepository.saveAll(users);
+        Iterable<User> iterable = users;
+        userRepository.saveAll(iterable);
     }
 
     public User getUserFromToken(String token) {
