@@ -125,6 +125,7 @@ public class AccountsApiController implements AccountsApi {
         // check if user is admin or user looged
         if(user.getUserId().equals(body.getUserId())){
             if(body.getAccountType().equals("current")){
+                // how many cuurent account can 1 user have?
                 account = accountService.createAccount(account);
             }
             else if(body.getAccountType().equals("saving")){
