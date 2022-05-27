@@ -43,12 +43,15 @@ public class MyApplicationRunner implements ApplicationRunner {
         //firstUser.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER, Role.ROLE_ADMIN)));
         firstUser.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
 
+
         User user2 = new User();
         user2.setUsername("tommy12");
         user2.setFullname("tommy king");
         user2.setPassword(securityConfig.passwordEncoder().encode("secret"));
         user2.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
-
+        user2.setDayLimit(2000.00);
+        user2.setTransactionLimit(500.00);
+        user2.setRemainingDayLimit(100.00);
         // create a list of user
         List<User> users = new ArrayList<>(Arrays.asList(firstUser, user2));
         //List<User> users = List.of(firstUser);
@@ -60,6 +63,7 @@ public class MyApplicationRunner implements ApplicationRunner {
             new Account("NL01INHO0000000001",firstUser, Double.MAX_VALUE, "bank"),
                 new Account("NL21INHO0123400001",user2, 50.00, "saving"),
                 new Account("NL21INHO0123400001",user2, 75.00, "current")
+                //new Account("NL21INHO0123400001", firstUser, 75.00, "current")
         );
 
         accountRepository.saveAll(accounts);
@@ -88,10 +92,10 @@ public class MyApplicationRunner implements ApplicationRunner {
         List<Transaction> transactions = List.of(
                 new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1900.00, "bank type", dateTime1, 500.00),
                 new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 2100.00, "bank type", dateTime2, 500.00),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 800.00, "bank type", dateTime3, 500.00),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1200.00, "bank type", dateTime4, 500.00),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 700.00, "bank type", dateTime5, 500.00),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 500.00, "bank type", dateTime6, 500.00),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 800.00, "bank type", dateTime1, 500.00),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1200.00, "bank type", dateTime2, 500.00),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 700.00, "bank type", dateTime1, 500.00),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 500.00, "bank type", dateTime2, 500.00),
                 new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1900.00, "bank type", dateTime7, 500.00),
                 new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1000.00, "bank type", dateTime8, 500.00),
                 new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 2000.00, "bank type", dateTime9, 500.00),

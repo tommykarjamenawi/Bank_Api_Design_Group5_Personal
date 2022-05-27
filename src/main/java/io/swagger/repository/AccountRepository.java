@@ -13,7 +13,7 @@ public interface AccountRepository extends CrudRepository<Account, Integer> {
 //    List<Account> checkCurrentAccount(User userId, String accountType);
 
 
-    @Query("select account from Account account where account.IBAN =:iban")
+    //@Query("select account from Account account where account.IBAN =:iban")
     Account getByIBAN(String iban);
 
     //List<Account> findAllByUserId(Integer userId);

@@ -57,14 +57,16 @@ public class TransactionsApiController implements TransactionsApi {
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true)
             String startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema())
-            @Valid @RequestParam(value = "endDate", required = true) String endDate) {
+            @Valid @RequestParam(value = "endDate", required = true) String endDate,
+            @Valid @RequestParam(value = "skip", required = false, defaultValue="0") Integer fromIndex,
+            @Valid @RequestParam(value = "limit", required = false, defaultValue = "100") Integer limit) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
 
         List<Transaction> transactions = transactionService.
-                getAllTransactions(username, startDate, endDate);
+                getAllTransactions(username, startDate, endDate, fromIndex, limit);
         return new ResponseEntity<>(transactions, HttpStatus.OK);
     }
 
@@ -75,17 +77,14 @@ public class TransactionsApiController implements TransactionsApi {
 
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
         String username = userAuthentication.getName();
-        User user = userService.getUserByUsername(username);
 
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication token is null");
-        }
-
-        if (body.getFromAccount() == null || body.getToAccount() == null || body.getTransactionType() == null ||
+        if (body.getFromAccount() == null ||
+                body.getToAccount() == null ||
+                body.getTransactionType() == null ||
                 body.getAmount() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
         }
-        Transaction storeTransaction = transactionService.createTransaction("", body);
+        Transaction storeTransaction = transactionService.createTransaction(username, body);
         return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
     }
 

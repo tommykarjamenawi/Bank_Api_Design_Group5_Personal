@@ -32,16 +32,19 @@ public class TransactionService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public List<Transaction> getAllTransactions(String username, String startDate, String endDate) {
+    public List<Transaction> getAllTransactions(String username,
+                                                String startDate,
+                                                String endDate,
+                                                Integer fromIndex, Integer limit) {
         // user id, two ibans filter all transaction for both dates
         User user = userRepository.findByUsername(username);
         // get all iban of user
         List<Account> accounts = accountRepository.findAllByUser(user);
         List<String> ibanList = new ArrayList<>();
+
         for (Account account : accounts) {
             ibanList.add(account.getIBAN());
         }
-
 
         List<Transaction> transactions = new ArrayList<>();
 
@@ -67,67 +70,94 @@ public class TransactionService {
                 transactions = (List<Transaction>) transactionRepository.findAll();
             }
         }
-        return transactions;
+
+        if (transactions.size() <= 0) {
+            return transactions;
+        }
+        return getTransactionsLimit(fromIndex, limit, transactions);
     }
+
+    public List<Transaction> getTransactionsLimit(Integer fromIndex, Integer maxIndex, List<Transaction> transactions) {
+
+        if (fromIndex < 0 || fromIndex > maxIndex || maxIndex <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "limit or offset cannot be less than zero, and offset cannot be grater than limit");
+        }
+
+        if (fromIndex == null) {
+            fromIndex = 0;
+        }
+
+        if (maxIndex == null) {
+            maxIndex = 10;
+        }
+
+        if (fromIndex == null && maxIndex == null) {
+            return transactions;
+        }
+
+        return transactions.subList(fromIndex, maxIndex);
+    }
+
 
     public Transaction createTransaction(String username, TransactionDTO transactionDTO) throws Exception {
 
-        // check if IBAN numbers of both accounts are the same
-        Transaction transaction = new Transaction();
-        if (transaction.getFromAccount() == transaction.getToAccount()) {
+       /* Account accountFrom = accountRepository.getByIBAN(transactionDTO.getFromAccount());
+        Account accountTo = accountRepository.getByIBAN(transactionDTO.getToAccount());
+
+        if (accountFrom.getAccountType().equals("saving") ||
+                accountTo.getAccountType().equals("saving")) {
+            if (accountFrom.getUser() != accountTo.getUser()) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "saving and current account needs to be owned by one user only");
+            }
+        }*/
+
+        if (transactionDTO.getFromAccount() == transactionDTO.getToAccount()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "IBAN numbers of from and to accounts cannot be the same");
         }
-        User user = userRepository.findByUsername(username);
-        List<Account> accounts = findAccountById(user);
 
-        if (accounts == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "accounts cannot be null");
+        Transaction transaction = new Transaction();
+        User user = userRepository.findByUsername(username);
+        List<Account> accounts = accountRepository.findAllByUser(user);
+        //List<String> ibans = new ArrayList<>();
+        transaction.setFromAccount("svdjbvksjdnv");
+        for (Account account: accounts) {
+            if (account.getIBAN().equals(transactionDTO.getFromAccount())) {
+                transaction.setFromAccount(transactionDTO.getToAccount());
+                break;
+            }
         }
+
+        if (transaction.getFromAccount().equals("svdjbvksjdnv")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not the owner of the account!");
+        }
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user not found");
+        }
+        transaction.setUserPerforming(user);
 
         if (user.getTransactionLimit() <= 0.00 || user.getRemainingDayLimit() <= 0.00) {
-            throw new IllegalArgumentException("error! cannot create transaction your transaction limit and day limit is 0.00");
-        }
 
-        LocalDateTime today = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        String dateTime = today.format(formatter);
-        LocalDateTime transactionDate;
-        try {
-            transactionDate = LocalDateTime.parse(dateTime, formatter);
-        } catch (DateTimeParseException ex) {
-            throw new IllegalArgumentException("datetime format is invalid");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "transaction limit or userdaylimit cannot be null");
         }
+        LocalDateTime transactionDate = LocalDateTime.now();
 
         switch (transactionDTO.getTransactionType()) {
-
             case "withdraw":
-                transaction.setFromAccount("ATM transfer");
                 transaction.setToAccount(transactionDTO.getToAccount());
                 break;
             case "deposit":
                 transaction.setToAccount("ATM deposit");
-                transaction.setFromAccount(transactionDTO.getFromAccount());
                 break;
             case "bank transfer":
-                transaction.setFromAccount(transactionDTO.getFromAccount());
                 transaction.setToAccount(transactionDTO.getToAccount());
                 break;
         }
         transaction.setTimestamp(transactionDate);
         transaction.setTransactionType(transactionDTO.getTransactionType());
         transaction.setAmount(transactionDTO.getAmount());
-        transaction.setUserPerforming(user);
-        Double balanceLeft = user.getDayLimit() - transactionDTO.getAmount();
+        Double balanceLeft = user.getTransactionLimit() - transactionDTO.getAmount();
         transaction.setBalanceAfterTransfer(balanceLeft);
         return transactionRepository.save(transaction);
-    }
-
-
-    List<Account> findAccountById(User user) {
-        if (user == null || accountRepository.findAllByUser(user).size() <= 0) {
-            return null;
-        }
-        return accountRepository.findAllByUser(user);
     }
 
 
