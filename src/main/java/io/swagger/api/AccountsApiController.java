@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 @RestController
@@ -111,12 +112,57 @@ public class AccountsApiController implements AccountsApi {
 
     public ResponseEntity<AccountResponseDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema = @Schema()) @Valid @RequestBody AccountDTO body) {
 
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
+
         Account account = new Account();
         account.setIBAN(account.generateIBAN());
         account.setAccountType(body.getAccountType());
         account.setUser(userService.getUserModelById(body.getUserId()));
 
-        account = accountService.createAccount(account);
+
+        // check if user is admin or user looged
+        if(user.getUserId().equals(body.getUserId())){
+            if(body.getAccountType().equals("current")){
+                account = accountService.createAccount(account);
+            }
+            else if(body.getAccountType().equals("saving")){
+                List<Account> accounts = accountService.findAllByUserAndAccountType(user,"current");
+                if (!accounts.isEmpty()){
+                    account = accountService.createAccount(account);
+                }
+                else
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "To make saving account first you need to make current account");
+            }
+            else
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "accounts can be type: current or saving");
+
+        }
+        else if(user.getRoles().contains(Role.ROLE_ADMIN)){
+            //check if user exist
+            User userToCreatAccount = userService.getUserModelById(body.getUserId());
+            if(userToCreatAccount.getUserId().equals(null)){
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user does not exist");
+            }
+            if(body.getAccountType().equals("current")){
+                account = accountService.createAccount(account);
+            }
+            else if(body.getAccountType().equals("saving")){
+                List<Account> accounts = accountService.findAllByUserAndAccountType(userToCreatAccount,"current");
+                if (!accounts.isEmpty()){
+                    account = accountService.createAccount(account);
+                }
+                else
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "To make saving account first you need to make current account");
+            }
+            else
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "accounts can be type: current or saving");
+        }
+        else
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not make account for this user");
+
+
 
 
 
@@ -126,10 +172,27 @@ public class AccountsApiController implements AccountsApi {
         return new ResponseEntity<AccountResponseDTO>(accountResponseDTO, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<List<Account>> getAccounts(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users", required = false, schema = @Schema()) @Valid @RequestParam(value = "skip", required = false) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users", required = false, schema = @Schema()) @Valid @RequestParam(value = "limit", required = false) Integer limit) {
-        List<Account> accounts = accountService.getAllAccounts();
+    public ResponseEntity<List<Account>> getAccounts(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users", required = true, schema = @Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users", required = false, schema = @Schema()) @Valid @RequestParam(value = "limit", required = false) Integer limit) {
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
+        Integer toSkip = skip;
+        Integer toLimit = limit;
+        if(toSkip.equals(null))
+            toSkip = 0;
 
+        if(toLimit.equals(null))
+            toLimit=20;
 
+        if(!user.getRoles().contains(Role.ROLE_ADMIN)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "you dont have access");
+        }
+        List<Account> accounts = accountService.findAllByAccountIdAfterAndAccountIdBefore();
+
+       accounts = accounts.stream()
+                .skip(toSkip)
+                .limit(toLimit)
+                .collect(Collectors.toList());
         return new ResponseEntity<List<Account>>(accounts,HttpStatus.OK);
     }
 

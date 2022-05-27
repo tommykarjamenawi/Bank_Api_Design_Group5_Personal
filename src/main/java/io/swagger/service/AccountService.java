@@ -21,6 +21,8 @@ public class AccountService {
     }
 
 
+
+
 //    public boolean checkCurrentAccount(User userId) {
 //        List<Account> accounts = accountRepository.checkCurrentAccount(userId,"current");
 //        if(accounts.isEmpty()){
@@ -42,7 +44,12 @@ public class AccountService {
         return accountRepository.findAllByUser(user);
     }
 
-    public List<Account> getAllAccounts(){
-        return (List<Account>) accountRepository.findAll();
+    public List<Account> findAllByAccountIdAfterAndAccountIdBefore(){
+        //return (List<Account>) accountRepository.findAllByAccountIdAfterAndAccountIdBefore(skip,limit);
+        return  accountRepository.findAll();
+    }
+
+    public List<Account> findAllByUserAndAccountType(User user,String accountType) {
+        return accountRepository.findAllByUserAndAccountType(user,accountType);
     }
 }
