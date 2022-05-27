@@ -9,17 +9,16 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface AccountRepository extends CrudRepository<Account, Integer> {
-//    @Query("select account from Account account where account.user =:userId and account.accountType = :accountType")
-//    List<Account> checkCurrentAccount(User userId, String accountType);
 
-
-    @Query("select account from Account account where account.IBAN =:iban")
-    Account getByIBAN(String iban);
-
-    //List<Account> findAllByUserId(Integer userId);
+    Account findByIBAN(String iban);
 
     // find all accounts belonging to a user
     List<Account> findAllByUser(User user);
+
+    List<Account> findAllByUserAndAccountType(User user,String accountType);
+
+    // List<Account> findAllByAccountIdAfterAndAccountIdBefore(Integer skip,Integer limit);
+    List<Account> findAll();
 
     // get sum of all accounts currentBalance where account contains user
     @Query("select sum(account.currentBalance) from Account account where account.user =:user")

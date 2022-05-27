@@ -21,6 +21,8 @@ public class AccountService {
     }
 
 
+
+
 //    public boolean checkCurrentAccount(User userId) {
 //        List<Account> accounts = accountRepository.checkCurrentAccount(userId,"current");
 //        if(accounts.isEmpty()){
@@ -29,19 +31,25 @@ public class AccountService {
 //        return true;
 //    }
 
-    public void deleteAccount(String iban) {
-        Account accountToDelete = accountRepository.getByIBAN(iban);
-        if(accountToDelete==null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account does not exist");
-        }
-        accountRepository.delete(accountToDelete);
+    public void deleteAccount(Account account) {
+        accountRepository.delete(account);
     }
 
-    public Account getAccountByIBAN(String iban) {
-        return accountRepository.getByIBAN(iban);
+    public Account findByIBAN(String iban) {
+        //check if we have account returned or null before send the data ??
+        return accountRepository.findByIBAN(iban);
     }
 
     public List<Account> getAllAccountsOfUser(User user) {
         return accountRepository.findAllByUser(user);
+    }
+
+    public List<Account> findAllByAccountIdAfterAndAccountIdBefore(){
+        //return (List<Account>) accountRepository.findAllByAccountIdAfterAndAccountIdBefore(skip,limit);
+        return  accountRepository.findAll();
+    }
+
+    public List<Account> findAllByUserAndAccountType(User user,String accountType) {
+        return accountRepository.findAllByUserAndAccountType(user,accountType);
     }
 }
