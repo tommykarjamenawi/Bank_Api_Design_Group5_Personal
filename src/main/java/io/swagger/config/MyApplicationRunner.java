@@ -59,7 +59,7 @@ public class MyApplicationRunner implements ApplicationRunner {
 
         List<Account> accounts = List.of(
             new Account("NL01INHO0000000001",firstUser, Double.MAX_VALUE, "bank"),
-                new Account("NL21INHO0123400001",user2, 50.00, "saving"),
+                new Account("NL21INHO0123400081",user2, 50.00, "saving"),
                 new Account("NL21INHO0123400001",user2, 75.00, "current")
         );
 
