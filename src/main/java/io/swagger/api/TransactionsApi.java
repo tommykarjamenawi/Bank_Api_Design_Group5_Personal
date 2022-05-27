@@ -46,9 +46,11 @@ public interface TransactionsApi {
         method = RequestMethod.GET)
     ResponseEntity<Iterable<Transaction>> transactionsGet(
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
-            @Valid @RequestParam(value = "startDate", required = true) LocalDateTime startDate,
+            @Valid @RequestParam(value = "startDate", required = true) String startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
-            @Valid @RequestParam(value = "endDate", required = true) LocalDateTime endDate);
+            @Valid @RequestParam(value = "endDate", required = true) String endDate,
+            @Valid @RequestParam(value = "page", required = false, defaultValue="0") Integer fromIndex,
+            @Valid @RequestParam(value = "limit", required = false, defaultValue = "100") Integer limit);
 
 
     @Operation(summary = "Creates a transaction", description = "Creates a transaction", security = {

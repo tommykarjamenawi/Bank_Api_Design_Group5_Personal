@@ -47,7 +47,9 @@ public class MyApplicationRunner implements ApplicationRunner {
         user2.setFullname("tommy king");
         user2.setPassword(securityConfig.passwordEncoder().encode("secret"));
         user2.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
-
+        user2.setDayLimit(2000.00);
+        user2.setTransactionLimit(500.00);
+        user2.setRemainingDayLimit(100.00);
         // create a list of user
         List<User> users = new ArrayList<>(Arrays.asList(firstUser, user2));
         //List<User> users = List.of(firstUser);
@@ -64,38 +66,37 @@ public class MyApplicationRunner implements ApplicationRunner {
         accountRepository.saveAll(accounts);
 
         // Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, java.time.LocalDateTime timestamp, Double balanceAfterTransfer
-        String str = "2018-12-10 12:30";
-        String str2 = "2018-12-11 13:30";
-        String str3 = "2018-12-12 14:30";
-        String str4 = "2018-12-13 15:30";
-        String str5 = "2018-12-14 16:30";
-        String str6 = "2018-12-15 17:30";
-        String str7 = "2018-12-16 18:30";
-        String str8 = "2021-05-15 12:45";
-        String str9 = "2021-11-24 14:45";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime dateTime =  LocalDateTime.parse(str, formatter);
-        LocalDateTime dateTime2 = LocalDateTime.parse(str2, formatter);
-        LocalDateTime dateTime3 = LocalDateTime.parse(str3, formatter);
-        LocalDateTime dateTime4 =  LocalDateTime.parse(str4, formatter);
-        LocalDateTime dateTime5 = LocalDateTime.parse(str5, formatter);
-        LocalDateTime dateTime6 = LocalDateTime.parse(str6, formatter);
-        LocalDateTime dateTime7 =  LocalDateTime.parse(str7, formatter);
-        LocalDateTime dateTime8 = LocalDateTime.parse(str8, formatter);
-        LocalDateTime dateTime9 = LocalDateTime.parse(str9, formatter);
+        String str1 = "2022-04-03T13:00:00";
+        String str2 = "2022-05-27T13:00:00";
+        String str3 = "2022-05-27T13:00:00";
+        String str4 = "2024-05-27T13:00:00";
+        String str5 = "2024-05-27T13:00:00";
+        String str6 = "2022-05-26T13:00:00";
+        String str7 = "2022-05-26T13:00:00";
+        String str8 = "2023-05-27T13:00:00";
+        String str9 = "2023-05-27T13:00:00";
+        LocalDateTime dateTime1 =  LocalDateTime.parse(str1);
+        LocalDateTime dateTime2 = LocalDateTime.parse(str2);
+        LocalDateTime dateTime3 = LocalDateTime.parse(str3);
+        LocalDateTime dateTime4 =  LocalDateTime.parse(str4);
+        LocalDateTime dateTime5 = LocalDateTime.parse(str5);
+        LocalDateTime dateTime6 = LocalDateTime.parse(str6);
+        LocalDateTime dateTime7 =  LocalDateTime.parse(str7);
+        LocalDateTime dateTime8 = LocalDateTime.parse(str8);
+        LocalDateTime dateTime9 = LocalDateTime.parse(str9);
 
 
         List<Transaction> transactions = List.of(
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime, 500.00),
-                new Transaction(2, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime2, 500.00),
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime3, 500.00),
-                new Transaction(2, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime4, 500.00),
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime5, 500.00),
-                new Transaction(2, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime6, 500.00),
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime8, 500.00),
-                new Transaction(1, "jjsdbjkbsdjbvkjsdn", "sjbdvkjsdvskdvn", 2000.00, "bank type", dateTime9, 500.00)
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1900.00, "bank type", dateTime1, 500.00),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 2100.00, "bank type", dateTime2, 500.00),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 800.00, "bank type", dateTime1, 500.00),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1200.00, "bank type", dateTime2, 500.00),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 700.00, "bank type", dateTime1, 500.00),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 500.00, "bank type", dateTime2, 500.00),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1900.00, "bank type", dateTime7, 500.00),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1000.00, "bank type", dateTime8, 500.00),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 2000.00, "bank type", dateTime9, 500.00),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 900.00, "bank type", dateTime9, 500.00)
         );
         transactionRepository.saveAll(transactions);
     }
