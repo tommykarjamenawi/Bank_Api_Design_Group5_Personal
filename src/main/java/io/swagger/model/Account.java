@@ -27,8 +27,12 @@ public class Account{
   private String IBAN;
 
   @ManyToOne
-  @JsonIgnoreProperties({"accounts"})
+  @JsonIgnoreProperties({"userId"})
   private User user;
+
+  @OneToMany(mappedBy = "userPerforming")
+  @JsonIgnoreProperties({"userPerforming"})
+  private List<Transaction> transactions;
 
   private Double currentBalance;
   private String accountType;

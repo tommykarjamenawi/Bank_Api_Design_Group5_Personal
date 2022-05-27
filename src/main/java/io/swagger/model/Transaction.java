@@ -2,6 +2,8 @@ package io.swagger.model;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,7 +30,9 @@ public class Transaction   {
   @SequenceGenerator(name = "transaction_seq", initialValue = 1)
   @GeneratedValue(generator = "transaction_seq", strategy = GenerationType.SEQUENCE)
   private Integer transactionId;
-  private Integer userPerformingId;
+
+  @ManyToOne
+  private User userPerforming;
   private String fromAccount;
   private String toAccount;
   private Double amount ;
@@ -37,9 +41,8 @@ public class Transaction   {
   private Double balanceAfterTransfer;
 
 
-  public Transaction(Integer userPerformingId, String fromAccount, String toAccount, Double amount, String transactionType, LocalDateTime timestamp, Double balanceAfterTransfer) {
-    this.transactionId = transactionId;
-    this.userPerformingId = userPerformingId;
+  public Transaction(User userPerforming, String fromAccount, String toAccount, Double amount, String transactionType, LocalDateTime timestamp, Double balanceAfterTransfer) {
+    this.userPerforming = userPerforming;
     this.fromAccount = fromAccount;
     this.toAccount = toAccount;
     this.amount = amount;

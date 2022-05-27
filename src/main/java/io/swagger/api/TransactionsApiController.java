@@ -53,43 +53,40 @@ public class TransactionsApiController implements TransactionsApi {
         this.request = request;
     }
 
-    public ResponseEntity<Iterable<Transaction>> transactionsGet(
-            @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" , required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true)
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
-            @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
-            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
+    public ResponseEntity<List<Transaction>> transactionsGet(
+            @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true)
+            String startDate,
+            @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema())
+            @Valid @RequestParam(value = "endDate", required = true) String endDate) {
 
-        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = userAuthentication.getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
 
-        if(startDate == null && endDate == null) {
-            startDate = LocalDateTime.now();
-            endDate = LocalDateTime.now();
-        }
-        Iterable<Transaction> transactions = transactionService.
+
+        List<Transaction> transactions = transactionService.
                 getAllTransactions(username, startDate, endDate);
         return new ResponseEntity<>(transactions, HttpStatus.OK);
     }
 
 
     public ResponseEntity<Transaction> transactionsPost(
-            @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
+            @Parameter(in = ParameterIn.DEFAULT, description = "", schema = @Schema())
             @Valid @RequestBody TransactionDTO body) throws Exception {
 
-            Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = userAuthentication.getName();
-            User user = userService.getUserByUsername(username);
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
 
-            if (user == null) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication token is null");
-            }
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication token is null");
+        }
 
-            if(body.getFromAccount() == null || body.getToAccount() == null || body.getTransactionType() == null ||
-            body.getAmount() == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
-            }
-            Transaction storeTransaction = transactionService.createTransaction("", body);
-            return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
+        if (body.getFromAccount() == null || body.getToAccount() == null || body.getTransactionType() == null ||
+                body.getAmount() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
+        }
+        Transaction storeTransaction = transactionService.createTransaction("", body);
+        return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
     }
 
 }
