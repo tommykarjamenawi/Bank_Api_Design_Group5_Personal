@@ -2,10 +2,13 @@ package io.swagger.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.jwt.JwtTokenProvider;
+import io.swagger.model.Account;
+import io.swagger.model.Role;
 import io.swagger.model.Transaction;
 import io.swagger.model.User;
 import io.swagger.model.dto.TransactionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.service.AccountService;
 import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,9 +29,11 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 @RestController
@@ -46,6 +51,8 @@ public class TransactionsApiController implements TransactionsApi {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AccountService accountService;
 
     @Autowired
     public TransactionsApiController(ObjectMapper objectMapper, HttpServletRequest request) {
@@ -53,20 +60,32 @@ public class TransactionsApiController implements TransactionsApi {
         this.request = request;
     }
 
-    public ResponseEntity<Iterable<Transaction>> transactionsGet(
+    public ResponseEntity<List<Transaction>> transactionsGet(
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" , required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true)
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") String startDate,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
-            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") String endDate,
+            @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate,
             @Valid @RequestParam(value = "page", required = false, defaultValue="0") Integer fromIndex,
-            @Valid @RequestParam(value = "limit", required = false, defaultValue = "100") Integer limit) {
+            @Valid @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit) {
 
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
         String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
 
-        List<Transaction> transactions = transactionService.
-                getAllTransactions(username, startDate, endDate, fromIndex, limit);
+        if(!user.getRoles().contains(Role.ROLE_ADMIN)){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not authorized to acces this list");
+        }
+
+        List<Transaction> transactions = transactionService.getAllTransactions(startDate, endDate);
+
+        // ask for check if limit or skip is just words
+            transactions = transactions.stream()
+                    .skip(fromIndex)
+                    .limit(limit)
+                    .collect(Collectors.toList());
+
         return new ResponseEntity<>(transactions, HttpStatus.OK);
+
     }
 
 
@@ -74,16 +93,59 @@ public class TransactionsApiController implements TransactionsApi {
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
             @Valid @RequestBody TransactionDTO body) throws Exception {
 
-        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = userAuthentication.getName();
-
         if (body.getFromAccount() == null ||
                 body.getToAccount() == null ||
                 body.getTransactionType() == null ||
                 body.getAmount() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
         }
-        Transaction storeTransaction = transactionService.createTransaction(username, body);
+
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
+
+
+        if(body.getFromAccount()== body.getToAccount())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From and to account is the same account");
+        Account fromAccount = accountService.findByIBAN(body.getFromAccount());
+        Account toAccount = accountService.findByIBAN(body.getToAccount());
+
+        // check if user is admin or user looged
+        if(fromAccount.getUser()!=user){
+            if(!user.getRoles().contains(Role.ROLE_ADMIN)){
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
+            }
+        }
+        //check if they are the same and both are current account
+        if(!fromAccount.getAccountType().equals("current") || !toAccount.getAccountType().equals("current")){
+            if(fromAccount.getAccountType().equals("saving") && toAccount.getAccountType().equals("saving")){
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "you can send or receive from a saving account to a saving account");
+            }
+            if(fromAccount.getUser() != toAccount.getUser()){
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "You can not send or receive from saving account and current account of different user");
+            }
+        }
+
+        if(fromAccount.getCurrentBalance()<body.getAmount()){
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "you dont have enough balance to make a transaction");
+        }
+
+        Transaction transaction = new Transaction();
+        if(!body.getTransactionType().equals("withdraw") || !!body.getTransactionType().equals("deposit") || !body.getTransactionType().equals("transfer"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "transaction type can be: withdraw or deposit or transfer");
+
+        transaction.setTransactionType(body.getTransactionType());
+        transaction.setFromAccount(body.getFromAccount());
+        transaction.setToAccount(body.getToAccount());
+        transaction.setAmount(body.getAmount());
+        transaction.setUserPerforming(user);
+        transaction.setTimestamp(LocalDate.now());
+
+       Transaction storeTransaction = transactionService.createTransaction(transaction);
+
+
+
+
         return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
     }
 

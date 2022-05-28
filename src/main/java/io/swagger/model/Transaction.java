@@ -1,5 +1,6 @@
 package io.swagger.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,11 +35,11 @@ public class Transaction   {
   private String toAccount;
   private Double amount;
   private String transactionType;
-  private LocalDateTime timestamp;
+  private LocalDate timestamp;
   private Double balanceAfterTransfer;
 
 
-  public Transaction(User userPerforming, String fromAccount, String toAccount, Double amount, String transactionType, LocalDateTime timestamp, Double balanceAfterTransfer) {
+  public Transaction(User userPerforming, String fromAccount, String toAccount, Double amount, String transactionType, LocalDate timestamp, Double balanceAfterTransfer) {
     this.transactionId = transactionId;
     this.userPerforming = userPerforming;
     this.fromAccount = fromAccount;

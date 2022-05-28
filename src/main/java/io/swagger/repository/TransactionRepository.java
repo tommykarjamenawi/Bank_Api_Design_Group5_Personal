@@ -21,4 +21,6 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
     // get all transactions with fromAccount between two dates
     List<Transaction> getTransactionByFromAccountAndTimestampBetween(String fromAccount, LocalDateTime dateFrom, LocalDateTime dateTo);
 
+    //return all transactions between from date and to date
+    List<Transaction> findAllByTimestampBetween(LocalDate fromDate,LocalDate toDate);
 }

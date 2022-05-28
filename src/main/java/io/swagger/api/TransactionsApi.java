@@ -44,7 +44,7 @@ public interface TransactionsApi {
     @RequestMapping(value = "/transactions",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<Iterable<Transaction>> transactionsGet(
+    ResponseEntity<List<Transaction>> transactionsGet(
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "startDate", required = true) String startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
