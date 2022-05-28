@@ -87,8 +87,6 @@ public class TransactionsApiController implements TransactionsApi {
         return new ResponseEntity<>(transactions, HttpStatus.OK);
 
     }
-
-
     public ResponseEntity<Transaction> transactionsPost(
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
             @Valid @RequestBody TransactionDTO body) throws Exception {
@@ -99,53 +97,11 @@ public class TransactionsApiController implements TransactionsApi {
                 body.getAmount() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
         }
-
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
         String username = userAuthentication.getName();
         User user = userService.getUserByUsername(username);
 
-
-        if(body.getFromAccount()== body.getToAccount())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From and to account is the same account");
-        Account fromAccount = accountService.findByIBAN(body.getFromAccount());
-        Account toAccount = accountService.findByIBAN(body.getToAccount());
-
-        // check if user is admin or user looged
-        if(fromAccount.getUser()!=user){
-            if(!user.getRoles().contains(Role.ROLE_ADMIN)){
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
-            }
-        }
-        //check if they are the same and both are current account
-        if(!fromAccount.getAccountType().equals("current") || !toAccount.getAccountType().equals("current")){
-            if(fromAccount.getAccountType().equals("saving") && toAccount.getAccountType().equals("saving")){
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "you can send or receive from a saving account to a saving account");
-            }
-            if(fromAccount.getUser() != toAccount.getUser()){
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "You can not send or receive from saving account and current account of different user");
-            }
-        }
-
-        if(fromAccount.getCurrentBalance()<body.getAmount()){
-            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "you dont have enough balance to make a transaction");
-        }
-
-        Transaction transaction = new Transaction();
-        if(!body.getTransactionType().equals("withdraw") || !!body.getTransactionType().equals("deposit") || !body.getTransactionType().equals("transfer"))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "transaction type can be: withdraw or deposit or transfer");
-
-        transaction.setTransactionType(body.getTransactionType());
-        transaction.setFromAccount(body.getFromAccount());
-        transaction.setToAccount(body.getToAccount());
-        transaction.setAmount(body.getAmount());
-        transaction.setUserPerforming(user);
-        transaction.setTimestamp(LocalDate.now());
-
-       Transaction storeTransaction = transactionService.createTransaction(transaction);
-
-
-
-
+       Transaction storeTransaction = transactionService.createTransaction(username, body);
         return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
     }
 
