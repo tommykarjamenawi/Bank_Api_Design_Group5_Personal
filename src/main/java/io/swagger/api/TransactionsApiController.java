@@ -8,6 +8,7 @@ import io.swagger.model.Transaction;
 import io.swagger.model.User;
 import io.swagger.model.dto.TransactionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.model.dto.TransactionResponseDTO;
 import io.swagger.service.AccountService;
 import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
@@ -68,6 +69,7 @@ public class TransactionsApiController implements TransactionsApi {
             @Valid @RequestParam(value = "page", required = false, defaultValue="0") Integer fromIndex,
             @Valid @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit) {
 
+
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
         String username = userAuthentication.getName();
         User user = userService.getUserByUsername(username);
@@ -87,7 +89,7 @@ public class TransactionsApiController implements TransactionsApi {
         return new ResponseEntity<>(transactions, HttpStatus.OK);
 
     }
-    public ResponseEntity<Transaction> transactionsPost(
+    public ResponseEntity<TransactionResponseDTO> transactionsPost(
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
             @Valid @RequestBody TransactionDTO body) throws Exception {
 
@@ -97,12 +99,25 @@ public class TransactionsApiController implements TransactionsApi {
                 body.getAmount() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
         }
+        if(body.getFromAccount().equals(body.getToAccount()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "transfer accounts cannot be the same!");
+
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
         String username = userAuthentication.getName();
         User user = userService.getUserByUsername(username);
 
        Transaction storeTransaction = transactionService.createTransaction(username, body);
-        return new ResponseEntity<Transaction>(storeTransaction, HttpStatus.OK);
+       TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
+       transactionResponseDTO.setTransactionId(storeTransaction.getTransactionId());
+       transactionResponseDTO.setUserPerforming(user.getUserId());
+       transactionResponseDTO.setFromAccount(storeTransaction.getFromAccount());
+       transactionResponseDTO.setToAccount(storeTransaction.getToAccount());
+       transactionResponseDTO.setAmount(storeTransaction.getAmount());
+       transactionResponseDTO.setTransactionType(storeTransaction.getTransactionType());
+       transactionResponseDTO.setTimestamp(storeTransaction.getTimestamp());
+
+
+       return new ResponseEntity<TransactionResponseDTO>(transactionResponseDTO, HttpStatus.OK);
     }
 
 }

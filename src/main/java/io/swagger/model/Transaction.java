@@ -36,10 +36,9 @@ public class Transaction   {
   private Double amount;
   private String transactionType;
   private LocalDate timestamp;
-  private Double balanceAfterTransfer;
 
 
-  public Transaction(User userPerforming, String fromAccount, String toAccount, Double amount, String transactionType, LocalDate timestamp, Double balanceAfterTransfer) {
+  public Transaction(User userPerforming, String fromAccount, String toAccount, Double amount, String transactionType, LocalDate timestamp) {
     this.transactionId = transactionId;
     this.userPerforming = userPerforming;
     this.fromAccount = fromAccount;
@@ -47,6 +46,5 @@ public class Transaction   {
     this.amount = amount;
     this.transactionType = transactionType;
     this.timestamp = timestamp;
-    this.balanceAfterTransfer = balanceAfterTransfer;
   }
 }
