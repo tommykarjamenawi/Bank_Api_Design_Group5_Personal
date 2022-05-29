@@ -97,7 +97,7 @@ public class AccountsApiController implements AccountsApi {
     public ResponseEntity<Account> accountsIBANGet(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
         // getes the data of a user from the token
         User user = loggedInUser();
-
+//todo: make accountresponsedto
         //receiving the account form database
         Account account = accountService.findByIBAN(IBAN);
 
@@ -218,12 +218,15 @@ public class AccountsApiController implements AccountsApi {
     }
 
     private AccountResponseDTO checkAndCreateAccount(User user ,AccountDTO body){
-
+// initialize object account
         Account account = new Account();
         account.setIBAN(account.generateIBAN());
-        account.setAccountType(AccountType.valueOf(body.getAccountType().toLowerCase()));
         account.setUser(userService.getUserModelById(body.getUserId()));
 
+        if(!body.getAccountType().toLowerCase().equals(AccountType.current.toString()) && !body.getAccountType().toLowerCase().equals(AccountType.saving.toString())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "accounts can be type: current or saving");
+        }
+        account.setAccountType(AccountType.valueOf(body.getAccountType().toLowerCase()));
         if(body.getAccountType().toLowerCase().equals(AccountType.current.toString())){
             // a user can have 1 current account a maltiple saving account
             if(checkifCurrentAccountExist(user)){
@@ -231,7 +234,7 @@ public class AccountsApiController implements AccountsApi {
             }
             account = accountService.createAccount(account);
         }
-        else if(body.getAccountType().toLowerCase().equals(AccountType.saving.toString())){
+        else{
             List<Account> accounts = accountService.findAllByUserAndAccountType(user,AccountType.current);
             if (!accounts.isEmpty()){
                 account = accountService.createAccount(account);
@@ -239,8 +242,6 @@ public class AccountsApiController implements AccountsApi {
             else
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "To make saving account first you need to make current account");
         }
-        else
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "accounts can be type: current or saving");
 
         AccountResponseDTO accountResponseDTO = new AccountResponseDTO();
         accountResponseDTO.setIBAN(account.getIBAN());
