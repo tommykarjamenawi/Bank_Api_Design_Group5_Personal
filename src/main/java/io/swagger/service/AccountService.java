@@ -20,36 +20,42 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-
-
-
-//    public boolean checkCurrentAccount(User userId) {
-//        List<Account> accounts = accountRepository.checkCurrentAccount(userId,"current");
-//        if(accounts.isEmpty()){
-//            return false;
-//        }
-//        return true;
-//    }
-
     public void deleteAccount(Account account) {
        accountRepository.delete(account);
     }
 
     public Account findByIBAN(String iban) {
-        //check if we have account returned or null before send the data ??
-        return accountRepository.findByIBAN(iban);
+        //New added
+        Account account = accountRepository.findByIBAN(iban);
+        //check if we return object of account
+        if(account==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account is not find check the iban number");
+        return account;
     }
 
     public List<Account> getAllAccountsOfUser(User user) {
-        return accountRepository.findAllByUser(user);
+        //new added to check the list is empty
+        List<Account> accountsOfAUser = accountRepository.findAllByUser(user);
+        if(accountsOfAUser==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"We can't find any account for this user");
+        return accountsOfAUser;
     }
 
-    public List<Account> findAllByAccountIdAfterAndAccountIdBefore(){
-        //return (List<Account>) accountRepository.findAllByAccountIdAfterAndAccountIdBefore(skip,limit);
-        return  accountRepository.findAll();
+    public List<Account> findAllAccount(){
+        //new added to check the list is empty
+        List<Account> accounts = accountRepository.findAll();
+        if(accounts==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"something going wrong when getting all accounts");
+        return  accounts;
     }
 
     public List<Account> findAllByUserAndAccountType(User user,String accountType) {
-        return accountRepository.findAllByUserAndAccountType(user,accountType);
+        //New added
+        List<Account> accounts = accountRepository.findAllByUserAndAccountType(user,accountType);
+        //check if we return object of account
+        if(accounts==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account is not find check the iban number");
+        return accounts;
     }
+
 }

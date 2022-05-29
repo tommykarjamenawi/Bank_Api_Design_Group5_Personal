@@ -24,5 +24,5 @@ public interface AccountRepository extends CrudRepository<Account, Integer> {
     @Query("select sum(account.currentBalance) from Account account where account.user =:user")
     Double getSumOfAllAccounts(User user);
 
-
+  
 }

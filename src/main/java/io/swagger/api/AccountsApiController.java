@@ -188,7 +188,7 @@ public class AccountsApiController implements AccountsApi {
         if(!user.getRoles().contains(Role.ROLE_ADMIN)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "you dont have access");
         }
-        List<Account> accounts = accountService.findAllByAccountIdAfterAndAccountIdBefore();
+        List<Account> accounts = accountService.findAllAccount();
 
        accounts = accounts.stream()
                 .skip(toSkip)
