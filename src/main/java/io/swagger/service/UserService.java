@@ -43,7 +43,6 @@ public class UserService {
             User user = userRepository.findByUsername(username);
             token = jwtTokenProvider.createToken(username, user.getRoles());
         } catch (AuthenticationException ex) {
-            // todo: how can we return this in the controller?
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Username or password is incorrect");
         }
         return token;
@@ -122,11 +121,6 @@ public class UserService {
             users.add(user);
         }
         userRepository.saveAll(users);
-    }
-
-    public User getUserFromToken(String token) {
-        String username = jwtTokenProvider.getUsername(token);
-        return userRepository.findByUsername(username);
     }
 
     public Double getUserTotalBalance(User user) {

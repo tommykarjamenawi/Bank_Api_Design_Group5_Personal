@@ -84,12 +84,10 @@ public class UsersApiController implements UsersApi {
 
     public ResponseEntity<List<Account>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
         // logged in user from authentication
-        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = userAuthentication.getName();
-        User logedInUser = userService.getUserByUsername(username);
+        User logedInUser = loggedInUser();
 
-        // check if user.getRoles() size is 2
-        if (logedInUser.getRoles().size() == 1 && logedInUser.getUserId() != userId) {
+        // check if user is admin or user is the same as the userId
+        if (!logedInUser.getRoles().contains(Role.ROLE_ADMIN) && logedInUser.getUserId() != userId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to get information of other users");
         }
 
@@ -108,12 +106,10 @@ public class UsersApiController implements UsersApi {
 
     public ResponseEntity<UserResponseDTO> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
         // logged in user from authentication
-        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = userAuthentication.getName();
-        User user = userService.getUserByUsername(username);
+        User logedInUser = loggedInUser();
 
         // check if user.getRoles() size is 2
-        if (user.getRoles().size() == 1 && user.getUserId() != userId) {
+        if (!logedInUser.getRoles().contains(Role.ROLE_ADMIN) && logedInUser.getUserId() != userId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to get information of other users");
         }
         UserResponseDTO userResponseDTO = userService.getUserById(userId);
@@ -125,12 +121,9 @@ public class UsersApiController implements UsersApi {
 
     public ResponseEntity<UserTotalBalanceResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
         // logged in user from authentication
-        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = userAuthentication.getName();
-        User logedInUser = userService.getUserByUsername(username);
+        User logedInUser = loggedInUser();
 
-        // check if user.getRoles() size is 2
-        if (logedInUser.getRoles().size() == 1 && logedInUser.getUserId() != userId) {
+        if (!logedInUser.getRoles().contains(Role.ROLE_ADMIN) && logedInUser.getUserId() != userId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to get information of other users");
         }
 
@@ -145,5 +138,11 @@ public class UsersApiController implements UsersApi {
         UserTotalBalanceResponseDTO userTotalBalanceResponseDTO = new UserTotalBalanceResponseDTO();
         userTotalBalanceResponseDTO.setTotalBalance(totalBalance);
         return new ResponseEntity<UserTotalBalanceResponseDTO>(userTotalBalanceResponseDTO, HttpStatus.OK);
+    }
+
+    public User loggedInUser() {
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        return userService.getUserByUsername(username);
     }
 }
