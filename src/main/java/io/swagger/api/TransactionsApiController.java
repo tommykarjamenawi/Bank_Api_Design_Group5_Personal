@@ -107,24 +107,12 @@ public class TransactionsApiController implements TransactionsApi {
         Account fromAccount = accountService.findByIBAN(body.getFromAccount());
         Account toAccount = accountService.findByIBAN(body.getToAccount());
 
-        if (!user.getAccounts().contains(fromAccount)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "account not found");
-        }
-
-        if (toAccount.getAccountType().equals(AccountType.bank)) {
-            body.setTransactionType(TransactionType.deposit.toString());
-        }
-
-        if (fromAccount.getAccountType().equals(AccountType.bank) && user.getRoles().equals(Role.ROLE_ADMIN)) {
-            body.setTransactionType(TransactionType.withdraw.toString());
-        }
         // check if user is admin or user looged
         if(fromAccount.getUser()!= user) {
             if (!user.getRoles().equals(Role.ROLE_ADMIN)) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
             }
         }
-
         //check if they are the same and both are current account
         if(!fromAccount.getAccountType().equals(AccountType.current) || !toAccount.getAccountType().equals(AccountType.current)) {
             if(fromAccount.getAccountType().equals(AccountType.saving) && toAccount.getAccountType().equals(AccountType.saving)){
@@ -134,8 +122,6 @@ public class TransactionsApiController implements TransactionsApi {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "You can not send or receive from saving account and current account of different user");
             }
         }
-        // senario: getting money from atm
-        // senario: putting money to atm
         if (fromAccount.getAccountType().equals(AccountType.bank) && user.getRoles().equals(Role.ROLE_USER)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you cannot not authorized to transfer from the bank");
         }
