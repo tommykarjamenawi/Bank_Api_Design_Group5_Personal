@@ -44,5 +44,7 @@ public class AccountService {
         return accountRepository.findAllByUserAndAccountType(user,accountType);
     }
 
-
+    public Account findByUserAndAccountType(User user, AccountType accountType) {
+        return  accountRepository.findByUserAndAccountType(user,accountType);
+    }
 }

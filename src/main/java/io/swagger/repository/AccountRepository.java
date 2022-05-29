@@ -26,6 +26,6 @@ public interface AccountRepository extends CrudRepository<Account, Integer> {
     Double getSumOfAllAccounts(User user);
 
 
-
-
+    //returns current account of a user
+    Account findByUserAndAccountType(User user, AccountType accountType);
 }
