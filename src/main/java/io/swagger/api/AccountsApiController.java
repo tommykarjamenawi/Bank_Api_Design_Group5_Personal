@@ -66,6 +66,8 @@ public class AccountsApiController implements AccountsApi {
         User user = userService.getUserByUsername(username);
         //receiving the account form database
         Account account = accountService.findByIBAN(IBAN);
+        if(account==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account is not find check the iban number");
 
         if(user.getRoles().contains(Role.ROLE_ADMIN) || user.getAccounts().contains(account)){
             accountService.deleteAccount(account);
@@ -86,6 +88,8 @@ public class AccountsApiController implements AccountsApi {
 
         //receiving the account form database
         Account account = accountService.findByIBAN(IBAN);
+        if(account==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account is not find check the iban number");
 
         //check if the user is owner of the account or admin(employee)
         if(user.getRoles().contains(Role.ROLE_ADMIN) || user.getAccounts().contains(account)){

@@ -25,12 +25,8 @@ public class AccountService {
     }
 
     public Account findByIBAN(String iban) {
-        //New added
-        Account account = accountRepository.findByIBAN(iban);
-        //check if we return object of account
-        if(account==null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Account is not find check the iban number");
-        return account;
+
+        return accountRepository.findByIBAN(iban);
     }
 
     public List<Account> getAllAccountsOfUser(User user) {
