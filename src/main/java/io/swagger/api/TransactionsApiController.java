@@ -106,7 +106,7 @@ public class TransactionsApiController implements TransactionsApi {
         Account fromAccount = accountService.findByIBAN(body.getFromAccount());
         Account toAccount = accountService.findByIBAN(body.getToAccount());
 
-        // Todo:missing if check
+
         // check if user is admin or user looged
         if(fromAccount.getUser()!= user){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");

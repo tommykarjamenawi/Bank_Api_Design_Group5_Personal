@@ -45,4 +45,7 @@ public class AccountService {
     }
 
 
+    public Account findByUserAndAccountType(User user, AccountType accountType) {
+        return  accountRepository.findByUserAndAccountType(user,accountType);
+    }
 }
