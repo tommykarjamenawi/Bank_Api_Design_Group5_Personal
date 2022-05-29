@@ -2,6 +2,7 @@ package io.swagger.service;
 
 import io.swagger.model.*;
 import io.swagger.model.dto.TransactionDTO;
+import io.swagger.model.dto.TransactionResponseDTO;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
@@ -78,6 +79,20 @@ public class TransactionService {
             transactions.addAll(transactionRepository.getTransactionByFromAccountAndTimestampBetween(iban, startDate, endDate));
             transactions.addAll(transactionRepository.getTransactionByToAccountAndTimestampBetween(iban, startDate, endDate));
         return transactions;
+    }
+
+    public TransactionResponseDTO getTransactionResponseDTO(Transaction storeTransaction, User user, Account fromAccount) {
+        TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
+
+        transactionResponseDTO.setTransactionId(storeTransaction.getTransactionId());
+        transactionResponseDTO.setUserPerforming(user.getUserId());
+        transactionResponseDTO.setFromAccount(storeTransaction.getFromAccount());
+        transactionResponseDTO.setToAccount(storeTransaction.getToAccount());
+        transactionResponseDTO.setAmount(storeTransaction.getAmount());
+        transactionResponseDTO.setTransactionType(storeTransaction.getTransactionType().toString());
+        transactionResponseDTO.setTimestamp(storeTransaction.getTimestamp());
+        transactionResponseDTO.setBalanceAfterTransfer(fromAccount.getCurrentBalance());
+        return transactionResponseDTO;
     }
 
 
