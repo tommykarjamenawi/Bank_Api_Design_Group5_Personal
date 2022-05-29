@@ -12,13 +12,13 @@ import java.util.Date;
 import java.util.List;
 
 public interface TransactionRepository extends CrudRepository<Transaction, Integer> {
-    // get all transactions with userPerforming between two dates
-    List<Transaction> getTransactionByUserPerformingAndTimestampBetween(User userPerforming, LocalDateTime dateFrom, LocalDateTime dateTo);
 
     // get all transactions with toAccount between two dates
-    List<Transaction> getTransactionByToAccountAndTimestampBetween(String toAccount, LocalDateTime dateFrom, LocalDateTime dateTo);
+    List<Transaction> getTransactionByToAccountAndTimestampBetween(String toAccount, LocalDate dateFrom, LocalDate dateTo);
 
     // get all transactions with fromAccount between two dates
-    List<Transaction> getTransactionByFromAccountAndTimestampBetween(String fromAccount, LocalDateTime dateFrom, LocalDateTime dateTo);
+    List<Transaction> getTransactionByFromAccountAndTimestampBetween(String fromAccount, LocalDate dateFrom, LocalDate dateTo);
 
+    //return all transactions between from date and to date
+    List<Transaction> findAllByTimestampBetween(LocalDate fromDate,LocalDate toDate);
 }

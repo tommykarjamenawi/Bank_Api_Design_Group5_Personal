@@ -9,6 +9,7 @@ import io.swagger.model.Transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.dto.AccountResponseDTO;
 import io.swagger.service.AccountService;
+import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -31,6 +32,7 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,6 +54,9 @@ public class AccountsApiController implements AccountsApi {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TransactionService transactionService;
 
 
     @Autowired
@@ -96,18 +101,42 @@ public class AccountsApiController implements AccountsApi {
 
     }
 
-    public ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("IBAN") Integer IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "minValue", required = true) Integer minValue, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<Transaction>>(objectMapper.readValue("[ {\n  \"transactionType\" : \"bank transfer\",\n  \"toAccount\" : \"NL45INHO9375867856\",\n  \"amount\" : 220.25,\n  \"userPerformingId\" : 50,\n  \"fromAccount\" : \"NL14INHO1234567890\",\n  \"balanceAfterTransfer\" : 100,\n  \"transactionId\" : 13,\n  \"timestamp\" : \"2022-07-21T17:32:28Z\"\n}, {\n  \"transactionType\" : \"bank transfer\",\n  \"toAccount\" : \"NL45INHO9375867856\",\n  \"amount\" : 220.25,\n  \"userPerformingId\" : 50,\n  \"fromAccount\" : \"NL14INHO1234567890\",\n  \"balanceAfterTransfer\" : 100,\n  \"transactionId\" : 13,\n  \"timestamp\" : \"2022-07-21T17:32:28Z\"\n} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<Transaction>>(HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(
+            @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "minValue", required = true) Integer minValue, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema())
+            @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
+
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
+        if (startDate == null || endDate == null) {
+            if (startDate == null && endDate == null) {
+                LocalDate startdate = LocalDate.now();
+                LocalDate enddate = LocalDate.now();
+            }
+            else {
+                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "date range must be specified");
+            }
+        }
+        //receiving the account form database
+        Account account = accountService.findByIBAN(IBAN);
+
+        if(user != account.getUser()) {
+            if (!user.getRoles().equals(Role.ROLE_ADMIN)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not authorized to see this transaction");
             }
         }
 
-        return new ResponseEntity<List<Transaction>>(HttpStatus.NOT_IMPLEMENTED);
+        List<Transaction> transactions = transactionService.
+                findAllTransactionsByIBANAccount(IBAN, startDate, endDate);
+
+        transactions = transactions.stream()
+                .skip(minValue)
+                .limit(maxValue)
+                .collect(Collectors.toList());
+        return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
     }
 
     public ResponseEntity<AccountResponseDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema = @Schema()) @Valid @RequestBody AccountDTO body) {

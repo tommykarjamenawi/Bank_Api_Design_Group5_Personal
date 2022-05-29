@@ -84,7 +84,15 @@ public interface AccountsApi {
     @RequestMapping(value = "/accounts/{IBAN}/transactions",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("IBAN") Integer IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "minValue", required = true) Integer minValue, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue);
+    ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(
+            @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema())
+            @PathVariable("IBAN") String IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
+    @Valid @RequestParam(value = "startDate", required = true) String startDate,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "endDate", required = true) String endDate,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "minValue", required = true) Integer minValue,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue);
 
     @Operation(summary = "Creates a new account", description = "Creates a new account. The Iban is being generated on the server.", security = {
             @SecurityRequirement(name = "bearerAuth")    }, tags={ "employee", "customer" })

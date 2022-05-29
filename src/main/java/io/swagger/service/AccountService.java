@@ -52,4 +52,6 @@ public class AccountService {
     public List<Account> findAllByUserAndAccountType(User user,String accountType) {
         return accountRepository.findAllByUserAndAccountType(user,accountType);
     }
+
+
 }

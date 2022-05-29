@@ -7,6 +7,7 @@ package io.swagger.api;
 
 import io.swagger.model.Transaction;
 import io.swagger.model.dto.TransactionDTO;
+import io.swagger.model.dto.TransactionResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -44,7 +45,7 @@ public interface TransactionsApi {
     @RequestMapping(value = "/transactions",
         produces = { "application/json" }, 
         method = RequestMethod.GET)
-    ResponseEntity<Iterable<Transaction>> transactionsGet(
+    ResponseEntity<List<Transaction>> transactionsGet(
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "startDate", required = true) String startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
@@ -69,7 +70,7 @@ public interface TransactionsApi {
         produces = { "application/json" }, 
         consumes = { "application/json" }, 
         method = RequestMethod.POST)
-    ResponseEntity<Transaction> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody TransactionDTO body) throws Exception;
+    ResponseEntity<TransactionResponseDTO> transactionsPost(@Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema()) @Valid @RequestBody TransactionDTO body) throws Exception;
 
 
 
