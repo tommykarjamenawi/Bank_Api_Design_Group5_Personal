@@ -25,6 +25,8 @@ public class UserDTO   {
   @JsonProperty("password")
   private String password = null;
 
+  private Integer createEmployee = null;
+
 //  @JsonProperty("roles")
 //  private List<Role> roles = null;
 }
