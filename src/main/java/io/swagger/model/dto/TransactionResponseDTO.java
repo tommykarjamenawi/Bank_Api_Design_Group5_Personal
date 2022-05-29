@@ -22,5 +22,6 @@ public class TransactionResponseDTO {
     private Double amount;
     private String transactionType;
     private LocalDate timestamp;
+    private Double balanceAfterTransfer;
 
 }

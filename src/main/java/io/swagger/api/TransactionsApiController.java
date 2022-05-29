@@ -106,6 +106,42 @@ public class TransactionsApiController implements TransactionsApi {
         String username = userAuthentication.getName();
         User user = userService.getUserByUsername(username);
 
+        Account fromAccount = accountService.findByIBAN(body.getFromAccount());
+        Account toAccount = accountService.findByIBAN(body.getToAccount());
+
+        // check if user is admin or user looged
+        if(fromAccount.getUser()!= user){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
+        }
+
+        //check if they are the same and both are current account
+        if(!fromAccount.getAccountType().equals("current") || !toAccount.getAccountType().equals("current")){
+            if(fromAccount.getAccountType().equals("saving") && toAccount.getAccountType().equals("saving")){
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "you can send or receive from a saving account to a saving account");
+            }
+            if(fromAccount.getUser() != toAccount.getUser()){
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "You can not send or receive from saving account and current account of different user");
+            }
+        }
+
+        if(fromAccount.getCurrentBalance() < body.getAmount()) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "insufficient balance! cannot make transaction");
+        }
+
+        if (body.getAmount() <= 0.00) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "amount to be transferred needs to be greater than zero");
+        }
+
+
+        Double deductBalanceAfterTransaction = fromAccount.getCurrentBalance() - body.getAmount();
+        fromAccount.setCurrentBalance(deductBalanceAfterTransaction);
+        accountService.createAccount(fromAccount);
+
+        Double addBalanceAfterTransaction = toAccount.getCurrentBalance() + body.getAmount();
+        toAccount.setCurrentBalance(addBalanceAfterTransaction);
+        accountService.createAccount(toAccount);
+
+
        Transaction storeTransaction = transactionService.createTransaction(username, body);
        TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
        transactionResponseDTO.setTransactionId(storeTransaction.getTransactionId());
@@ -115,6 +151,8 @@ public class TransactionsApiController implements TransactionsApi {
        transactionResponseDTO.setAmount(storeTransaction.getAmount());
        transactionResponseDTO.setTransactionType(storeTransaction.getTransactionType());
        transactionResponseDTO.setTimestamp(storeTransaction.getTimestamp());
+       transactionResponseDTO.setBalanceAfterTransfer(fromAccount.getCurrentBalance());
+
 
 
        return new ResponseEntity<TransactionResponseDTO>(transactionResponseDTO, HttpStatus.OK);
