@@ -113,6 +113,14 @@ public class TransactionsApiController implements TransactionsApi {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
             }
         }
+
+        if(fromAccount.getAccountType().equals(AccountType.bank) || toAccount.getAccountType().equals(AccountType.bank)){
+            if(!(fromAccount.getAccountType().equals(AccountType.bank.toString()) && toAccount.getAccountType().equals(AccountType.current.toString()))
+                    || !(fromAccount.getAccountType().equals(AccountType.current.toString()) && toAccount.getAccountType().equals(AccountType.bank.toString())))
+            {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "You can not transfer from and to the bank to saving account");
+            }
+        }
         //check if they are the same and both are current account
         if(!fromAccount.getAccountType().equals(AccountType.current) || !toAccount.getAccountType().equals(AccountType.current)) {
             if(fromAccount.getAccountType().equals(AccountType.saving) && toAccount.getAccountType().equals(AccountType.saving)){
