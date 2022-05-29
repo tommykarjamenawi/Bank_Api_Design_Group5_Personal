@@ -96,6 +96,7 @@ public class TransactionsApiController implements TransactionsApi {
                 body.getAmount() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
         }
+
         if(body.getFromAccount().equals(body.getToAccount()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "transfer accounts cannot be the same!");
 
@@ -106,21 +107,31 @@ public class TransactionsApiController implements TransactionsApi {
         Account fromAccount = accountService.findByIBAN(body.getFromAccount());
         Account toAccount = accountService.findByIBAN(body.getToAccount());
 
-        // Todo:missing if check
         // check if user is admin or user looged
-        if(fromAccount.getUser()!= user){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
+        if(fromAccount.getUser()!= user) {
+            if (!user.getRoles().equals(Role.ROLE_ADMIN)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
+            }
         }
 
-        // Todo:needs to add bank type
+        if(fromAccount.getAccountType().equals(AccountType.bank) || toAccount.getAccountType().equals(AccountType.bank)){
+            if(!(fromAccount.getAccountType().equals(AccountType.bank.toString()) && toAccount.getAccountType().equals(AccountType.current.toString()))
+                    || !(fromAccount.getAccountType().equals(AccountType.current.toString()) && toAccount.getAccountType().equals(AccountType.bank.toString())))
+            {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "You can not transfer from and to the bank to saving account");
+            }
+        }
         //check if they are the same and both are current account
-        if(!fromAccount.getAccountType().equals(AccountType.current) || !toAccount.getAccountType().equals(AccountType.current)){
+        if(!fromAccount.getAccountType().equals(AccountType.current) || !toAccount.getAccountType().equals(AccountType.current)) {
             if(fromAccount.getAccountType().equals(AccountType.saving) && toAccount.getAccountType().equals(AccountType.saving)){
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "you can send or receive from a saving account to a saving account");
             }
             if(fromAccount.getUser() != toAccount.getUser()){
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "You can not send or receive from saving account and current account of different user");
             }
+        }
+        if (fromAccount.getAccountType().equals(AccountType.bank) && user.getRoles().equals(Role.ROLE_USER)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you cannot not authorized to transfer from the bank");
         }
 
         if(fromAccount.getCurrentBalance() < body.getAmount()) {
@@ -130,6 +141,7 @@ public class TransactionsApiController implements TransactionsApi {
         if (body.getAmount() <= 0.00) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "amount to be transferred needs to be greater than zero");
         }
+
 
 
         Double deductBalanceAfterTransaction = fromAccount.getCurrentBalance() - body.getAmount();
@@ -142,18 +154,7 @@ public class TransactionsApiController implements TransactionsApi {
 
 
        Transaction storeTransaction = transactionService.createTransaction(username, body);
-       TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
-       transactionResponseDTO.setTransactionId(storeTransaction.getTransactionId());
-       transactionResponseDTO.setUserPerforming(user.getUserId());
-       transactionResponseDTO.setFromAccount(storeTransaction.getFromAccount());
-       transactionResponseDTO.setToAccount(storeTransaction.getToAccount());
-       transactionResponseDTO.setAmount(storeTransaction.getAmount());
-       transactionResponseDTO.setTransactionType(storeTransaction.getTransactionType().toString());
-       transactionResponseDTO.setTimestamp(storeTransaction.getTimestamp());
-       transactionResponseDTO.setBalanceAfterTransfer(fromAccount.getCurrentBalance());
-
-
-
+       TransactionResponseDTO transactionResponseDTO = transactionService.getTransactionResponseDTO(storeTransaction, user, fromAccount);
        return new ResponseEntity<TransactionResponseDTO>(transactionResponseDTO, HttpStatus.OK);
     }
 
