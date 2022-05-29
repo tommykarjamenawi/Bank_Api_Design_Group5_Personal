@@ -58,7 +58,13 @@ public class UserService {
         user.setUsername(userDTO.getUsername());
         user.setFullname(userDTO.getFullname());
         user.setPassword(securityConfig.passwordEncoder().encode(userDTO.getPassword()));
-        user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
+        if (userDTO.getCreateEmployee() == 1){
+            // Only admin can set createEmployee property to 1 in the UI
+            user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER, Role.ROLE_ADMIN)));
+        }
+        else {
+            user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));
+        }
         UserResponseDTO userResponseDTO = new UserResponseDTO();
 
         User newUser = userRepository.save(user);
@@ -74,14 +80,14 @@ public class UserService {
     }
 
     public UserResponseDTO getUserById(Integer id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User user = userRepository.findById(id).orElse(null);
         UserResponseDTO userResponseDTO = new UserResponseDTO();
         userResponseDTO.setUser(user);
         return userResponseDTO;
     }
 
     public User getUserModelById(Integer id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return userRepository.findById(id).orElse(null);
     }
 
     public List<User> getAllUsers(Integer skip, Integer limit, Integer withoutAccount) {
@@ -91,6 +97,16 @@ public class UserService {
             return userRepository.findAllByAccountsIsNull();
         }
         return userRepository.findAllByUserIdAfterAndUserIdIsBefore(skip, (skip + limit + 1));
+    }
+
+    public List<UserResponseDTO> convertUsersToUserResponseDTO(List<User> users) {
+        List<UserResponseDTO> userResponseDTOs = new ArrayList<>();
+        for (User user : users) {
+            UserResponseDTO userResponseDTO = new UserResponseDTO();
+            userResponseDTO.setUser(user);
+            userResponseDTOs.add(userResponseDTO);
+        }
+        return userResponseDTOs;
     }
 
     public void create50RandomUsers() {
@@ -105,11 +121,6 @@ public class UserService {
             users.add(user);
         }
         userRepository.saveAll(users);
-    }
-
-    public User getUserFromToken(String token) {
-        String username = jwtTokenProvider.getUsername(token);
-        return userRepository.findByUsername(username);
     }
 
     public Double getUserTotalBalance(User user) {
