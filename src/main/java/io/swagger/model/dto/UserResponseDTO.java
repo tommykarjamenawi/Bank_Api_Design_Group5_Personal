@@ -12,6 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class UserResponseDTO {
+    private Integer userId;
     @JsonProperty("username")
     private String username;
 
@@ -21,9 +22,17 @@ public class UserResponseDTO {
     @JsonProperty("roles")
     private List<Role> roles;
 
+    private Double dayLimit;
+    private Double transactionLimit;
+    private Double remainingDayLimit;
+
     public void setUser(User newUser) {
+        this.userId = newUser.getUserId();
         this.username = newUser.getUsername();
         this.fullname = newUser.getFullname();
         this.roles = newUser.getRoles();
+        this.dayLimit = newUser.getDayLimit();
+        this.transactionLimit = newUser.getTransactionLimit();
+        this.remainingDayLimit = newUser.getRemainingDayLimit();
     }
 }
