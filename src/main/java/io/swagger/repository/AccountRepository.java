@@ -1,6 +1,7 @@
 package io.swagger.repository;
 
 import io.swagger.model.Account;
+import io.swagger.model.AccountType;
 import io.swagger.model.Transaction;
 import io.swagger.model.User;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +16,7 @@ public interface AccountRepository extends CrudRepository<Account, Integer> {
     // find all accounts belonging to a user
     List<Account> findAllByUser(User user);
 
-    List<Account> findAllByUserAndAccountType(User user,String accountType);
+    List<Account> findAllByUserAndAccountType(User user, AccountType accountType);
 
     // List<Account> findAllByAccountIdAfterAndAccountIdBefore(Integer skip,Integer limit);
     List<Account> findAll();

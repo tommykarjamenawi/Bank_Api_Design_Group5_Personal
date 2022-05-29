@@ -1,8 +1,6 @@
 package io.swagger.config;
 
-import io.swagger.model.Account;
-import io.swagger.model.Transaction;
-import io.swagger.model.User;
+import io.swagger.model.*;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
@@ -47,10 +45,10 @@ public class MyApplicationRunner implements ApplicationRunner {
         userService.create50RandomUsers();
 
         List<Account> accounts = List.of(
-            new Account("NL01INHO0000000001",firstUser, Double.MAX_VALUE, "bank"),
-                new Account("NL21INHO0123400081",user2, 50.00, "saving"),
-                new Account("NL21INHO0123400001",user2, 75.00, "current"),
-                new Account("NL51INHO0123400001",user3, 75.00, "current")
+            new Account("NL01INHO0000000001",firstUser, Double.MAX_VALUE, AccountType.bank),
+                new Account("NL21INHO0123400081",user2, 50.00, AccountType.saving),
+                new Account("NL21INHO0123400001",user2, 75.00, AccountType.current),
+                new Account("NL51INHO0123400001",user3, 75.00, AccountType.current)
         );
         accountRepository.saveAll(accounts);
 
@@ -75,16 +73,16 @@ public class MyApplicationRunner implements ApplicationRunner {
         LocalDate dateTime9 = LocalDate.parse(str9);
 
         List<Transaction> transactions = List.of(
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1900.00, "bank type", dateTime1),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 2100.00, "bank type", dateTime2),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 800.00, "bank type", dateTime1),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1200.00, "bank type", dateTime2),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 700.00, "bank type", dateTime1),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 500.00, "bank type", dateTime2),
-                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1900.00, "bank type", dateTime7),
-                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1000.00, "bank type", dateTime8),
-                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 2000.00, "bank type", dateTime9),
-                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 900.00, "bank type", dateTime9)
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1900.00, TransactionType.transfer, dateTime1),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 2100.00, TransactionType.deposit, dateTime2),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 800.00, TransactionType.withdraw, dateTime1),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1200.00, TransactionType.transfer, dateTime2),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 700.00, TransactionType.deposit, dateTime1),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 500.00, TransactionType.withdraw, dateTime2),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1900.00, TransactionType.transfer, dateTime7),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1000.00, TransactionType.deposit, dateTime8),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 2000.00, TransactionType.withdraw, dateTime9),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 900.00, TransactionType.transfer, dateTime9)
         );
         transactionRepository.saveAll(transactions);
     }

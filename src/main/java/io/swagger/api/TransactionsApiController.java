@@ -2,10 +2,7 @@ package io.swagger.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.jwt.JwtTokenProvider;
-import io.swagger.model.Account;
-import io.swagger.model.Role;
-import io.swagger.model.Transaction;
-import io.swagger.model.User;
+import io.swagger.model.*;
 import io.swagger.model.dto.TransactionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.dto.TransactionResponseDTO;
@@ -109,14 +106,16 @@ public class TransactionsApiController implements TransactionsApi {
         Account fromAccount = accountService.findByIBAN(body.getFromAccount());
         Account toAccount = accountService.findByIBAN(body.getToAccount());
 
+        // Todo:missing if check
         // check if user is admin or user looged
         if(fromAccount.getUser()!= user){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
         }
 
+        // Todo:needs to add bank type
         //check if they are the same and both are current account
-        if(!fromAccount.getAccountType().equals("current") || !toAccount.getAccountType().equals("current")){
-            if(fromAccount.getAccountType().equals("saving") && toAccount.getAccountType().equals("saving")){
+        if(!fromAccount.getAccountType().equals(AccountType.current) || !toAccount.getAccountType().equals(AccountType.current)){
+            if(fromAccount.getAccountType().equals(AccountType.saving) && toAccount.getAccountType().equals(AccountType.saving)){
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "you can send or receive from a saving account to a saving account");
             }
             if(fromAccount.getUser() != toAccount.getUser()){
@@ -149,7 +148,7 @@ public class TransactionsApiController implements TransactionsApi {
        transactionResponseDTO.setFromAccount(storeTransaction.getFromAccount());
        transactionResponseDTO.setToAccount(storeTransaction.getToAccount());
        transactionResponseDTO.setAmount(storeTransaction.getAmount());
-       transactionResponseDTO.setTransactionType(storeTransaction.getTransactionType());
+       transactionResponseDTO.setTransactionType(storeTransaction.getTransactionType().toString());
        transactionResponseDTO.setTimestamp(storeTransaction.getTimestamp());
        transactionResponseDTO.setBalanceAfterTransfer(fromAccount.getCurrentBalance());
 

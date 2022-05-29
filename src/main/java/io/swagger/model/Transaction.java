@@ -34,11 +34,11 @@ public class Transaction   {
   private String fromAccount;
   private String toAccount;
   private Double amount;
-  private String transactionType;
+  private TransactionType transactionType;
   private LocalDate timestamp;
 
 
-  public Transaction(User userPerforming, String fromAccount, String toAccount, Double amount, String transactionType, LocalDate timestamp) {
+  public Transaction(User userPerforming, String fromAccount, String toAccount, Double amount, TransactionType transactionType, LocalDate timestamp) {
     this.transactionId = transactionId;
     this.userPerforming = userPerforming;
     this.fromAccount = fromAccount;

@@ -1,6 +1,7 @@
 package io.swagger.service;
 
 import io.swagger.model.Account;
+import io.swagger.model.AccountType;
 import io.swagger.model.User;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
@@ -21,16 +22,6 @@ public class AccountService {
     }
 
 
-
-
-//    public boolean checkCurrentAccount(User userId) {
-//        List<Account> accounts = accountRepository.checkCurrentAccount(userId,"current");
-//        if(accounts.isEmpty()){
-//            return false;
-//        }
-//        return true;
-//    }
-
     public void deleteAccount(Account account) {
         accountRepository.delete(account);
     }
@@ -49,7 +40,7 @@ public class AccountService {
         return  accountRepository.findAll();
     }
 
-    public List<Account> findAllByUserAndAccountType(User user,String accountType) {
+    public List<Account> findAllByUserAndAccountType(User user, AccountType accountType) {
         return accountRepository.findAllByUserAndAccountType(user,accountType);
     }
 

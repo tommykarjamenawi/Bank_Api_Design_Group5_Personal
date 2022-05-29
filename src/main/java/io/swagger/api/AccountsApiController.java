@@ -1,11 +1,8 @@
 package io.swagger.api;
 
 import io.swagger.annotations.Api;
-import io.swagger.model.Account;
-import io.swagger.model.Role;
-import io.swagger.model.User;
+import io.swagger.model.*;
 import io.swagger.model.dto.AccountDTO;
-import io.swagger.model.Transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.dto.AccountResponseDTO;
 import io.swagger.service.AccountService;
@@ -35,6 +32,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
@@ -71,6 +69,9 @@ public class AccountsApiController implements AccountsApi {
         User user = userService.getUserByUsername(username);
         //receiving the account form database
         Account account = accountService.findByIBAN(IBAN);
+    // todo: add a check if they delete a current have orphan saving accounts
+        if(account.getAccountType().equals(AccountType.bank))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete bank account");
 
         if(user.getRoles().contains(Role.ROLE_ADMIN) || user.getAccounts().contains(account)){
             accountService.deleteAccount(account);
@@ -101,6 +102,7 @@ public class AccountsApiController implements AccountsApi {
 
     }
 
+    // todo: check a senario for bank
     public ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(
             @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate,
@@ -145,20 +147,21 @@ public class AccountsApiController implements AccountsApi {
         String username = userAuthentication.getName();
         User user = userService.getUserByUsername(username);
 
+        // todo: add checks
         Account account = new Account();
         account.setIBAN(account.generateIBAN());
-        account.setAccountType(body.getAccountType());
+        account.setAccountType(AccountType.valueOf(body.getAccountType().toLowerCase()));
         account.setUser(userService.getUserModelById(body.getUserId()));
 
 
         // check if user is admin or user looged
         if(user.getUserId().equals(body.getUserId())){
-            if(body.getAccountType().equals("current")){
+            if(body.getAccountType().toLowerCase().equals(AccountType.current.toString())){
                 // how many cuurent account can 1 user have?
                 account = accountService.createAccount(account);
             }
-            else if(body.getAccountType().equals("saving")){
-                List<Account> accounts = accountService.findAllByUserAndAccountType(user,"current");
+            else if(body.getAccountType().toLowerCase().equals(AccountType.saving.toString())){
+                List<Account> accounts = accountService.findAllByUserAndAccountType(user,AccountType.current);
                 if (!accounts.isEmpty()){
                     account = accountService.createAccount(account);
                 }
@@ -175,11 +178,11 @@ public class AccountsApiController implements AccountsApi {
             if(userToCreatAccount.getUserId().equals(null)){
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user does not exist");
             }
-            if(body.getAccountType().equals("current")){
+            if(body.getAccountType().toLowerCase().equals(AccountType.current.toString())){
                 account = accountService.createAccount(account);
             }
-            else if(body.getAccountType().equals("saving")){
-                List<Account> accounts = accountService.findAllByUserAndAccountType(userToCreatAccount,"current");
+            else if(body.getAccountType().toLowerCase().equals(AccountType.saving.toString())){
+                List<Account> accounts = accountService.findAllByUserAndAccountType(userToCreatAccount,AccountType.current);
                 if (!accounts.isEmpty()){
                     account = accountService.createAccount(account);
                 }
@@ -198,7 +201,7 @@ public class AccountsApiController implements AccountsApi {
 
         AccountResponseDTO accountResponseDTO = new AccountResponseDTO();
         accountResponseDTO.setIBAN(account.getIBAN());
-        accountResponseDTO.setAccountType(account.getAccountType());
+        accountResponseDTO.setAccountType(AccountType.valueOf(body.getAccountType()));
         return new ResponseEntity<AccountResponseDTO>(accountResponseDTO, HttpStatus.CREATED);
     }
 

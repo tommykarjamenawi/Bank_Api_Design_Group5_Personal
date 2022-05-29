@@ -31,13 +31,13 @@ public class Account{
   private User user;
 
   private Double currentBalance;
-  private String accountType;
+  private AccountType accountType;
 
   //private Integer userId;
 
 
   // to create the bank account
-  public Account(String IBAN, User user,Double currentBalance, String accountType) {
+  public Account(String IBAN, User user,Double currentBalance, AccountType accountType) {
     this.IBAN = IBAN;
     this.user = user;
     this.currentBalance = currentBalance;

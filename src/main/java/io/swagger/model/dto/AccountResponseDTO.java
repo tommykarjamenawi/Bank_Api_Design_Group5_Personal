@@ -2,6 +2,7 @@ package io.swagger.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.Account;
+import io.swagger.model.AccountType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
@@ -15,7 +16,7 @@ public class AccountResponseDTO {
     private String IBAN = null;
 
     @JsonProperty("accountType")
-    private String accountType = null;
+    private AccountType accountType = null;
 
 
     public AccountResponseDTO userId(Account account) {

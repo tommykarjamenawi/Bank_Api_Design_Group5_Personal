@@ -1,9 +1,6 @@
 package io.swagger.service;
 
-import io.swagger.model.Account;
-import io.swagger.model.Role;
-import io.swagger.model.Transaction;
-import io.swagger.model.User;
+import io.swagger.model.*;
 import io.swagger.model.dto.TransactionDTO;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
@@ -53,17 +50,8 @@ public class TransactionService {
 
         User user = userRepository.findByUsername(username);
 
-
-
-
-
-
-
-
-
-
         Transaction transaction = new Transaction();
-        transaction.setTransactionType(body.getTransactionType());
+        transaction.setTransactionType(TransactionType.valueOf(body.getTransactionType().toLowerCase()));
         transaction.setFromAccount(body.getFromAccount());
         transaction.setToAccount(body.getToAccount());
         transaction.setAmount(body.getAmount());
