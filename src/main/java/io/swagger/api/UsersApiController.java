@@ -137,7 +137,7 @@ public class UsersApiController implements UsersApi {
         userTotalBalanceResponseDTO.setTotalBalance(totalBalance);
         return new ResponseEntity<UserTotalBalanceResponseDTO>(userTotalBalanceResponseDTO, HttpStatus.OK);
     }
-    
+
     public ResponseEntity<UserResponseDTO> loggedInUserGet() {
         User user = loggedInUser();
         UserResponseDTO userResponseDTO = new UserResponseDTO();
