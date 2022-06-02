@@ -16,11 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -28,6 +24,7 @@ import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
 @Validated
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public interface UsersApi {
 
     @Operation(summary = "Gets all users", description = "Gets all users in the system according the limit and skip and account ", security = {
@@ -130,4 +127,16 @@ public interface UsersApi {
             method = RequestMethod.GET)
     ResponseEntity<UserTotalBalanceResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
 
+    @Operation(summary = "Gets total balance of the user", description = "Returns the total balance of all accounts for a user ", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "customer", "employee" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns a user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TotalAmountResponseDTO.class))),
+
+            @ApiResponse(responseCode = "400", description = "Invalid id format"),
+
+            @ApiResponse(responseCode = "401", description = "Access token is missing or invalid")})
+    @RequestMapping(value = "/users/loggedInUser",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<UserResponseDTO> loggedInUserGet();
 }

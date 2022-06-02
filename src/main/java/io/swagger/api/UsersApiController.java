@@ -21,10 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.*;
@@ -67,6 +64,7 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<List<UserResponseDTO>>(userResponseDTOS, HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:8086")
     public LoginResponseDTO usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body) {
         LoginResponseDTO responseDTO = new LoginResponseDTO();
         responseDTO.setToken(userService.login(body.getUsername(), body.getPassword()));
@@ -139,6 +137,33 @@ public class UsersApiController implements UsersApi {
         userTotalBalanceResponseDTO.setTotalBalance(totalBalance);
         return new ResponseEntity<UserTotalBalanceResponseDTO>(userTotalBalanceResponseDTO, HttpStatus.OK);
     }
+
+    public ResponseEntity<UserResponseDTO> loggedInUserGet() {
+        User user = loggedInUser();
+        UserResponseDTO userResponseDTO = new UserResponseDTO();
+        userResponseDTO.setUser(user);
+        return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.OK);
+    }
+
+//    public ResponseEntity<UserResponseDTO> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to update", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Parameter(in = ParameterIn.DEFAULT, description = "User to update", schema=@Schema()) @Valid @RequestBody UserDTO body) {
+//        // logged in user from authentication
+//        User logedInUser = loggedInUser();
+//
+//        // check if user.getRoles() size is 2
+//        if (!logedInUser.getRoles().contains(Role.ROLE_ADMIN) && logedInUser.getUserId() != userId) {
+//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to update information of other users");
+//        }
+//
+//        User user = userService.getUserModelById(userId);
+//        if (user == null) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
+//        }
+//        UserResponseDTO userResponseDTO = userService.updateUser(user, body);
+//        if (userResponseDTO == null) {
+//            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "User already exists");
+//        }
+//        return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.OK);
+//    }
 
     public User loggedInUser() {
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
