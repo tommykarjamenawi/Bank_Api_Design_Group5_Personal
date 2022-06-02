@@ -75,6 +75,7 @@ public class UserServiceTest {
     @Test
     public void checkLoginTokenIsNotNull() {
         when(this.userRepository.findByUsername(abhi.getUsername())).thenReturn(abhi);
+
         String token = userService.login("abhi", "sec");
         assertNotNull(token);
     }
