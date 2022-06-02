@@ -118,7 +118,10 @@ public class UsersApiController implements UsersApi {
 
     public ResponseEntity<UserTotalBalanceResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
         // logged in user from authentication
-        User logedInUser = loggedInUser();
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User logedInUser = userService.getUserByUsername(username);
+        //User logedInUser = loggedInUser();
 
         if (!logedInUser.getRoles().contains(Role.ROLE_ADMIN) && logedInUser.getUserId() != userId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to get information of other users");

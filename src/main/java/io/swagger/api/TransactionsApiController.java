@@ -109,7 +109,7 @@ public class TransactionsApiController implements TransactionsApi {
 
         // check if user is admin or user looged
         if(fromAccount.getUser()!= user) {
-            if (!user.getRoles().equals(Role.ROLE_ADMIN)) {
+            if (!user.getRoles().contains(Role.ROLE_ADMIN)) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
             }
         }

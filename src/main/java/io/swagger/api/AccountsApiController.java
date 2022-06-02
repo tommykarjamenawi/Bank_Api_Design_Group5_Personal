@@ -134,7 +134,7 @@ public class AccountsApiController implements AccountsApi {
         Account account = accountService.findByIBAN(IBAN);
 
         if(user != account.getUser()) {
-            if (!user.getRoles().equals(Role.ROLE_ADMIN)) {
+            if (!user.getRoles().contains(Role.ROLE_ADMIN)) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not authorized to see this transaction");
             }
         }
@@ -146,6 +146,7 @@ public class AccountsApiController implements AccountsApi {
                 .skip(minValue)
                 .limit(maxValue)
                 .collect(Collectors.toList());
+        // todo: change returntype to transaction response dto
         return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
     }
 

@@ -130,7 +130,7 @@ public interface UsersApi {
     @Operation(summary = "Gets total balance of the user", description = "Returns the total balance of all accounts for a user ", security = {
             @SecurityRequirement(name = "bearerAuth")    }, tags={ "customer", "employee" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Returns a user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TotalAmountResponseDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Returns a user", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))),
 
             @ApiResponse(responseCode = "400", description = "Invalid id format"),
 
