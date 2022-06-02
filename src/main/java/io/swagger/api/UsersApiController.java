@@ -64,7 +64,6 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<List<UserResponseDTO>>(userResponseDTOS, HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:8086")
     public LoginResponseDTO usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body) {
         LoginResponseDTO responseDTO = new LoginResponseDTO();
         responseDTO.setToken(userService.login(body.getUsername(), body.getPassword()));
