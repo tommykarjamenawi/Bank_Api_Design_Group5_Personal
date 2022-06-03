@@ -2,11 +2,8 @@ package io.swagger.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.model.*;
-import io.swagger.model.dto.AbsoluteLimitDTO;
-import io.swagger.model.dto.AccountDTO;
+import io.swagger.model.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.model.dto.AccountResponseDTO;
-import io.swagger.model.dto.UpdateDayAndTransactionLimitDTO;
 import io.swagger.service.AccountService;
 import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
@@ -113,7 +110,7 @@ public class AccountsApiController implements AccountsApi {
     }
 
     // todo: check a senario for bank
-    public ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(
+    public ResponseEntity<List<TransactionResponseDTO>> accountsIBANTransactionsGet(
             @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate,
@@ -141,15 +138,14 @@ public class AccountsApiController implements AccountsApi {
             }
         }
 
-        List<Transaction> transactions = transactionService.
-                findAllTransactionsByIBANAccount(IBAN, startDate, endDate);
+        List<TransactionResponseDTO> transactions = transactionService.
+                findAllTransactionsByIBANAccount(IBAN, startDate, endDate, user);
 
         transactions = transactions.stream()
                 .skip(minValue)
                 .limit(maxValue)
                 .collect(Collectors.toList());
-        // todo: change returntype to transaction response dto
-        return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
+        return new ResponseEntity<List<TransactionResponseDTO>>(transactions, HttpStatus.OK);
     }
 
     public ResponseEntity<AccountResponseDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema = @Schema()) @Valid @RequestBody AccountDTO body) {

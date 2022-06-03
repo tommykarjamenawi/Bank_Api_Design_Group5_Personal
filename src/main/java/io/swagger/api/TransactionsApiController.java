@@ -154,7 +154,7 @@ public class TransactionsApiController implements TransactionsApi {
 
 
        Transaction storeTransaction = transactionService.createTransaction(username, body);
-       TransactionResponseDTO transactionResponseDTO = transactionService.getTransactionResponseDTO(storeTransaction, user, fromAccount);
+       TransactionResponseDTO transactionResponseDTO = transactionService.getTransactionResponseDTO(storeTransaction, user);
        return new ResponseEntity<TransactionResponseDTO>(transactionResponseDTO, HttpStatus.OK);
     }
 

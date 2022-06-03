@@ -62,10 +62,9 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    public List<Transaction> findAllTransactionsByIBANAccount(String iban, String datefrom, String dateto) {
+    public List<TransactionResponseDTO>  findAllTransactionsByIBANAccount(String iban, String datefrom, String dateto, User user) {
 
         List<Transaction> transactions = new ArrayList<>();
-
         LocalDate startDate;
         LocalDate endDate;
 
@@ -78,22 +77,27 @@ public class TransactionService {
         }
             transactions.addAll(transactionRepository.getTransactionByFromAccountAndTimestampBetween(iban, startDate, endDate));
             transactions.addAll(transactionRepository.getTransactionByToAccountAndTimestampBetween(iban, startDate, endDate));
-        return transactions;
+          List<TransactionResponseDTO> transactionResponseDTOS = new ArrayList<>();
+        for (Transaction transaction: transactions) {
+         TransactionResponseDTO tr = getTransactionResponseDTO(transaction, user);
+         transactionResponseDTOS.add(tr);
+        }
+            return transactionResponseDTOS;
     }
 
-    public TransactionResponseDTO getTransactionResponseDTO(Transaction storeTransaction, User user, Account fromAccount) {
+    public TransactionResponseDTO getTransactionResponseDTO(Transaction storeTransaction, User user) {
         TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
 
         transactionResponseDTO.setTransactionId(storeTransaction.getTransactionId());
-        transactionResponseDTO.setUserPerforming(user.getUserId());
+        transactionResponseDTO.setUserPerformingId(user.getUserId());
         transactionResponseDTO.setFromAccount(storeTransaction.getFromAccount());
         transactionResponseDTO.setToAccount(storeTransaction.getToAccount());
         transactionResponseDTO.setAmount(storeTransaction.getAmount());
         transactionResponseDTO.setTransactionType(storeTransaction.getTransactionType().toString());
         transactionResponseDTO.setTimestamp(storeTransaction.getTimestamp());
-        transactionResponseDTO.setBalanceAfterTransfer(fromAccount.getCurrentBalance());
         return transactionResponseDTO;
     }
+
 
 
 }

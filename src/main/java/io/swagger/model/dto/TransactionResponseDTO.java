@@ -16,12 +16,11 @@ import java.time.LocalDate;
 public class TransactionResponseDTO {
 
     private Integer transactionId;
-    private Integer userPerforming;
+    private Integer userPerformingId;
     private String fromAccount;
     private String toAccount;
     private Double amount;
     private String transactionType;
     private LocalDate timestamp;
-    private Double balanceAfterTransfer;
 
 }

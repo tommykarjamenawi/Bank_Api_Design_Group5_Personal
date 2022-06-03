@@ -6,11 +6,8 @@
 package io.swagger.api;
 
 import io.swagger.model.Account;
-import io.swagger.model.dto.AbsoluteLimitDTO;
-import io.swagger.model.dto.AccountDTO;
+import io.swagger.model.dto.*;
 import io.swagger.model.Transaction;
-import io.swagger.model.dto.AccountResponseDTO;
-import io.swagger.model.dto.UpdateDayAndTransactionLimitDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -83,7 +80,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/accounts/{IBAN}/transactions",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(
+    ResponseEntity<List<TransactionResponseDTO>> accountsIBANTransactionsGet(
             @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema())
             @PathVariable("IBAN") String IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
     @Valid @RequestParam(value = "startDate", required = true) String startDate,
