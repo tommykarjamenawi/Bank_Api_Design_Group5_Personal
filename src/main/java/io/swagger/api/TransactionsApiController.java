@@ -158,4 +158,6 @@ public class TransactionsApiController implements TransactionsApi {
        return new ResponseEntity<TransactionResponseDTO>(transactionResponseDTO, HttpStatus.OK);
     }
 
+    //todo: add search transaction according the given amount user story num 14
+
 }
