@@ -147,6 +147,25 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.OK);
     }
 
+    public ResponseEntity<Void> updateDayAndTransactionLimitPost(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Valid @RequestBody UpdateDayAndTransactionLimitDTO body) {
+
+        User logedInUser = loggedInUser();
+        if(!logedInUser.getRoles().contains(Role.ROLE_ADMIN)){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you dont have access");
+        }
+        // get user from userId
+        User user = userService.getUserModelById(userId);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
+        }
+        user.setDayLimit(body.getDayLimit());
+        user.setTransactionLimit(body.getTransactionLimit());
+        userService.UpdateUserdayAndTransactionLimit(user);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+
+
 //    public ResponseEntity<UserResponseDTO> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to update", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Parameter(in = ParameterIn.DEFAULT, description = "User to update", schema=@Schema()) @Valid @RequestBody UserDTO body) {
 //        // logged in user from authentication
 //        User logedInUser = loggedInUser();

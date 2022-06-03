@@ -2,9 +2,11 @@ package io.swagger.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.model.*;
+import io.swagger.model.dto.AbsoluteLimitDTO;
 import io.swagger.model.dto.AccountDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.dto.AccountResponseDTO;
+import io.swagger.model.dto.UpdateDayAndTransactionLimitDTO;
 import io.swagger.service.AccountService;
 import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
@@ -158,11 +160,8 @@ public class AccountsApiController implements AccountsApi {
         //initializing object of AccountResponseDto
         AccountResponseDTO accountResponseDTO;
 
-        // check if user is admin or user looged
-        if(user.getUserId().equals(body.getUserId())){
-            accountResponseDTO = checkAndCreateAccount(user , body);
-        }
-        else if(user.getRoles().contains(Role.ROLE_ADMIN)){
+        // check if user is admin
+         if(user.getRoles().contains(Role.ROLE_ADMIN)){
             //check if user exist
             User userToCreatAccount = userService.getUserModelById(body.getUserId());
             if(userToCreatAccount.getUserId().equals(null)){
@@ -249,6 +248,22 @@ public class AccountsApiController implements AccountsApi {
         accountResponseDTO.setAccountType(AccountType.valueOf(body.getAccountType()));
 
         return accountResponseDTO;
+    }
+
+    public ResponseEntity<Void> updateAbsoluteLimitPost(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN, @Valid @RequestBody AbsoluteLimitDTO body) {
+        // getes the data of a user from the token
+        User user = loggedInUser();
+
+        if(!user.getRoles().contains(Role.ROLE_ADMIN)){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you dont have access");
+        }
+
+        Account account = accountService.findByIBAN(IBAN);
+        account.setAbsoluteLimit(body.getAbsoluteLimit());
+
+        accountService.createAccount(account);
+
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
 }

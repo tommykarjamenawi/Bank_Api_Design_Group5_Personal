@@ -18,6 +18,8 @@ public class AccountResponseDTO {
     @JsonProperty("accountType")
     private AccountType accountType = null;
 
+    private Double absoluteLimit = null;
+
 
     public AccountResponseDTO userId(Account account) {
         this.IBAN = account.getIBAN();

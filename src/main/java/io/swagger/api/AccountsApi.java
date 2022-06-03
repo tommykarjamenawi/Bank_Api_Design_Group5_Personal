@@ -6,9 +6,11 @@
 package io.swagger.api;
 
 import io.swagger.model.Account;
+import io.swagger.model.dto.AbsoluteLimitDTO;
 import io.swagger.model.dto.AccountDTO;
 import io.swagger.model.Transaction;
 import io.swagger.model.dto.AccountResponseDTO;
+import io.swagger.model.dto.UpdateDayAndTransactionLimitDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -126,5 +128,22 @@ public interface AccountsApi {
             produces = { "application/json" },
             method = RequestMethod.GET)
     ResponseEntity<List<Account>> getAccounts(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit);
+
+    @Operation(summary = "Set absolute Limit", description = "updates absolute limit for account", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "employee"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "absolute limit updated"),
+
+            @ApiResponse(responseCode = "400", description = "invalid input, object invalid"),
+
+            @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
+
+            @ApiResponse(responseCode = "404", description = "user not found"),
+
+            @ApiResponse(responseCode = "500", description = "Internal server error") })
+    @RequestMapping(value = "/acccounts/{IBAN}",
+            consumes = { "application/json" },
+            method = RequestMethod.PUT)
+    ResponseEntity<Void> updateAbsoluteLimitPost(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN, @Valid @RequestBody AbsoluteLimitDTO body);
 
 }

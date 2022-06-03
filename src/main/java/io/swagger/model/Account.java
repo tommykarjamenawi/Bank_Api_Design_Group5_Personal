@@ -32,6 +32,7 @@ public class Account{
 
   private Double currentBalance;
   private AccountType accountType;
+  private Double absoluteLimit = 0.00;
 
   //private Integer userId;
 
