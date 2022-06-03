@@ -160,6 +160,7 @@ public class UsersApiController implements UsersApi {
         }
         user.setDayLimit(body.getDayLimit());
         user.setTransactionLimit(body.getTransactionLimit());
+        user.setRemainingDayLimit(body.getTransactionLimit());
         userService.UpdateUserdayAndTransactionLimit(user);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }

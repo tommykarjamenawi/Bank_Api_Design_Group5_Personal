@@ -133,7 +133,7 @@ public class TransactionsApiController implements TransactionsApi {
         if (fromAccount.getAccountType().equals(AccountType.bank) && user.getRoles().equals(Role.ROLE_USER)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you cannot not authorized to transfer from the bank");
         }
-
+// todo: check with abolute limit and check with day and transaction limit
         if(fromAccount.getCurrentBalance() < body.getAmount()) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "insufficient balance! cannot make transaction");
         }
