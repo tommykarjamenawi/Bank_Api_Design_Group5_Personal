@@ -63,8 +63,8 @@ public class TransactionsApiController implements TransactionsApi {
             @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate,
-            @Valid @RequestParam(value = "page", required = false, defaultValue="0") Integer fromIndex,
-            @Valid @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit) {
+            @Valid @RequestParam(value = "skip", required = false, defaultValue="0") Integer skipValue,
+            @Valid @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limitValue) {
 
 
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
@@ -79,8 +79,8 @@ public class TransactionsApiController implements TransactionsApi {
 
         // ask for check if limit or skip is just words
             transactions = transactions.stream()
-                    .skip(fromIndex)
-                    .limit(limit)
+                    .skip(skipValue)
+                    .limit(limitValue)
                     .collect(Collectors.toList());
 
         return new ResponseEntity<>(transactions, HttpStatus.OK);
@@ -134,6 +134,7 @@ public class TransactionsApiController implements TransactionsApi {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you cannot not authorized to transfer from the bank");
         }
 // todo: check with abolute limit and check with day and transaction limit
+
         if(fromAccount.getCurrentBalance() < body.getAmount()) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "insufficient balance! cannot make transaction");
         }

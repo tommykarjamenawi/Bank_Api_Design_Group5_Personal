@@ -75,12 +75,12 @@ public class MyApplicationRunner implements ApplicationRunner {
         List<Transaction> transactions = List.of(
                 new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1900.00, TransactionType.transfer, dateTime1),
                 new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 2100.00, TransactionType.deposit, dateTime2),
-                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 800.00, TransactionType.withdraw, dateTime1),
+                new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 400.00, TransactionType.withdraw, dateTime2),
                 new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 1200.00, TransactionType.transfer, dateTime2),
                 new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 700.00, TransactionType.deposit, dateTime1),
                 new Transaction(firstUser, "NL01INHO0000000001", "NL21INHO0123400001", 500.00, TransactionType.withdraw, dateTime2),
-                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1900.00, TransactionType.transfer, dateTime7),
-                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1000.00, TransactionType.deposit, dateTime8),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1900.00, TransactionType.transfer, dateTime1),
+                new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 1000.00, TransactionType.deposit, dateTime1),
                 new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 2000.00, TransactionType.withdraw, dateTime9),
                 new Transaction(user2, "NL21INHO0123400001", "NL01INHO0000000001", 900.00, TransactionType.transfer, dateTime9)
         );

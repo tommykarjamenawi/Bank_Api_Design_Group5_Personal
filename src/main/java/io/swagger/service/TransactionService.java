@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -62,10 +63,11 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    public List<Transaction> findAllTransactionsByIBANAccount(String iban, String datefrom, String dateto) {
+    public List<TransactionResponseDTO> findAllTransactionsByIBANAccount(String iban, String datefrom, String dateto) {
 
         List<Transaction> transactions = new ArrayList<>();
-
+        List<TransactionResponseDTO> transactionResponseList = new ArrayList<>();
+        Account account = accountRepository.findByIBAN(iban);
         LocalDate startDate;
         LocalDate endDate;
 
@@ -76,9 +78,23 @@ public class TransactionService {
         catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Invalid date format, needs to be in yyyy-MM-dd");
         }
-            transactions.addAll(transactionRepository.getTransactionByFromAccountAndTimestampBetween(iban, startDate, endDate));
-            transactions.addAll(transactionRepository.getTransactionByToAccountAndTimestampBetween(iban, startDate, endDate));
-        return transactions;
+        transactions.addAll(transactionRepository.getTransactionByFromAccountAndTimestampBetween(iban, startDate, endDate));
+        transactions.addAll(transactionRepository.getTransactionByToAccountAndTimestampBetween(iban, startDate, endDate));
+
+
+        for (Transaction transaction: transactions) {
+            TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
+            transactionResponseDTO.setTransactionId(transaction.getTransactionId());
+            transactionResponseDTO.setUserPerforming(transaction.getUserPerforming().getUserId());
+            transactionResponseDTO.setFromAccount(transaction.getFromAccount());
+            transactionResponseDTO.setToAccount(transaction.getToAccount());
+            transactionResponseDTO.setAmount(transaction.getAmount());
+            transactionResponseDTO.setTimestamp(transaction.getTimestamp());
+            transactionResponseDTO.setTransactionType(transaction.getTransactionType().toString());
+            transactionResponseDTO.setBalanceAfterTransfer(account.getCurrentBalance());
+            transactionResponseList.add(transactionResponseDTO);
+        }
+        return transactionResponseList;
     }
 
     public TransactionResponseDTO getTransactionResponseDTO(Transaction storeTransaction, User user, Account fromAccount) {
@@ -95,5 +111,24 @@ public class TransactionService {
         return transactionResponseDTO;
     }
 
+    public List<Transaction> getAllTransactionsByAmount(String IBAN, Double amount, String operator) {
+        List<Transaction> transactions = new ArrayList<>();
 
+        switch(operator) {
+            case "<":
+                transactions.addAll(transactionRepository.findAllByAmountLessThanAndFromAccount(amount, IBAN));
+                transactions.addAll(transactionRepository.findAllByAmountLessThanAndToAccount(amount, IBAN));
+                return transactions;
+            case ">":
+                transactions.addAll(transactionRepository.findAllByAmountGreaterThanAndFromAccount(amount, IBAN));
+                transactions.addAll(transactionRepository.findAllByAmountGreaterThanAndToAccount(amount, IBAN));
+                return transactions;
+            case "==":
+                transactions.addAll(transactionRepository.findAllByAmountEqualsAndFromAccount(amount, IBAN));
+                transactions.addAll(transactionRepository.findAllByAmountEqualsAndToAccount(amount, IBAN));
+                return transactions;
+            default:
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "invalid operator value");
+        }
+    }
 }

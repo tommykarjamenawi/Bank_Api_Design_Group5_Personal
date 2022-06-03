@@ -51,8 +51,8 @@ public interface TransactionsApi {
             @Valid @RequestParam(value = "startDate", required = true) String startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) String endDate,
-            @Valid @RequestParam(value = "page", required = false, defaultValue="0") Integer fromIndex,
-            @Valid @RequestParam(value = "limit", required = false, defaultValue = "100") Integer limit);
+            @Valid @RequestParam(value = "skip", required = false, defaultValue="0") Integer skipValue,
+            @Valid @RequestParam(value = "limit", required = false, defaultValue = "100") Integer limitValue);
 
 
     @Operation(summary = "Creates a transaction", description = "Creates a transaction", security = {

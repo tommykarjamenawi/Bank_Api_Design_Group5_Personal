@@ -2,11 +2,8 @@ package io.swagger.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.model.*;
-import io.swagger.model.dto.AbsoluteLimitDTO;
-import io.swagger.model.dto.AccountDTO;
+import io.swagger.model.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.model.dto.AccountResponseDTO;
-import io.swagger.model.dto.UpdateDayAndTransactionLimitDTO;
 import io.swagger.service.AccountService;
 import io.swagger.service.TransactionService;
 import io.swagger.service.UserService;
@@ -99,7 +96,7 @@ public class AccountsApiController implements AccountsApi {
     public ResponseEntity<Account> accountsIBANGet(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
         // getes the data of a user from the token
         User user = loggedInUser();
-//todo: make accountresponsedto
+        //todo: make accountresponsedto
         //receiving the account form database
         Account account = accountService.findByIBAN(IBAN);
 
@@ -113,12 +110,13 @@ public class AccountsApiController implements AccountsApi {
     }
 
     // todo: check a senario for bank
-    public ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(
+    public ResponseEntity<List<TransactionResponseDTO>> accountsIBANTransactionsGet(
             @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate,
-            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "minValue", required = true) Integer minValue, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema())
-            @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "skip record", required = true, schema = @Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skipValue,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "max limit", required = true, schema = @Schema())
+            @Valid @RequestParam(value = "limit", required = true) Integer limitValue) {
 
         // getes the data of a user from the token
         User user = loggedInUser();
@@ -141,15 +139,15 @@ public class AccountsApiController implements AccountsApi {
             }
         }
 
-        List<Transaction> transactions = transactionService.
+        List<TransactionResponseDTO> transactions = transactionService.
                 findAllTransactionsByIBANAccount(IBAN, startDate, endDate);
 
         transactions = transactions.stream()
-                .skip(minValue)
-                .limit(maxValue)
+                .skip(skipValue)
+                .limit(limitValue)
                 .collect(Collectors.toList());
-        // todo: change returntype to transaction response dto
-        return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
+        // todo: change returntype to transaction response dto [DONE]
+        return new ResponseEntity<List<TransactionResponseDTO>>(transactions, HttpStatus.OK);
     }
 
     public ResponseEntity<AccountResponseDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema = @Schema()) @Valid @RequestBody AccountDTO body) {
@@ -264,6 +262,25 @@ public class AccountsApiController implements AccountsApi {
         accountService.createAccount(account);
 
         return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<Transaction>> accountsIBANTransactionsByAmountGet(
+            @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema())
+            @PathVariable("IBAN") String IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction by amount" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "amount", required = true) Double amount,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "enter operator [<, ==, >]" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "operator", required = true) String operator,
+            @Valid @RequestParam(value = "minValue", required = true) Integer minValue,
+            @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
+
+        Account userAccount = accountService.findByIBAN(IBAN);
+
+        List<Transaction> transactions = transactionService.getAllTransactionsByAmount(IBAN, amount, operator);
+        transactions = transactions.stream()
+                .skip(minValue)
+                .limit(maxValue)
+                .collect(Collectors.toList());
+        return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
     }
 
 }

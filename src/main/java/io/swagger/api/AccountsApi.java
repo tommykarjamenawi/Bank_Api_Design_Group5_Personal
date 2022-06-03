@@ -6,11 +6,8 @@
 package io.swagger.api;
 
 import io.swagger.model.Account;
-import io.swagger.model.dto.AbsoluteLimitDTO;
-import io.swagger.model.dto.AccountDTO;
+import io.swagger.model.dto.*;
 import io.swagger.model.Transaction;
-import io.swagger.model.dto.AccountResponseDTO;
-import io.swagger.model.dto.UpdateDayAndTransactionLimitDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -83,7 +80,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/accounts/{IBAN}/transactions",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<Transaction>> accountsIBANTransactionsGet(
+    ResponseEntity<List<TransactionResponseDTO>> accountsIBANTransactionsGet(
             @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema())
             @PathVariable("IBAN") String IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
     @Valid @RequestParam(value = "startDate", required = true) String startDate,
@@ -145,5 +142,29 @@ public interface AccountsApi {
             consumes = { "application/json" },
             method = RequestMethod.PUT)
     ResponseEntity<Void> updateAbsoluteLimitPost(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN, @Valid @RequestBody AbsoluteLimitDTO body);
+
+    @Operation(summary = "Gets all transactions of the account", description = "returns the transaction history ", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "transaction" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns all the transactions needed", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
+
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+
+            @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
+
+            @ApiResponse(responseCode = "404", description = "No transactions found"),
+
+            @ApiResponse(responseCode = "500", description = "Internal server error") })
+    @RequestMapping(value = "/accounts/{IBAN}/transactions/byamount",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<List<Transaction>> accountsIBANTransactionsByAmountGet(
+            @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema())
+            @PathVariable("IBAN") String IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction by amount" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "amount", required = true) Double amount,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "enter operator <, ==, >" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "operator", required = true) String operator,
+            @Valid @RequestParam(value = "minValue", required = true) Integer minValue,
+            @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue);
 
 }
