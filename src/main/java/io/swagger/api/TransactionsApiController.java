@@ -134,7 +134,7 @@ public class TransactionsApiController implements TransactionsApi {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you cannot not authorized to transfer from the bank");
         }
 
-        if(body.getAmount() > fromAccount.getAbsoluteLimit()) {
+        if(body.getAmount() <= fromAccount.getAbsoluteLimit()) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "you have exceeded your absolute limit!");
         }
 

@@ -79,7 +79,7 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<List<Account>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
+    public ResponseEntity<List<AccountResponseDTO>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
         // logged in user from authentication
         User logedInUser = loggedInUser();
 
@@ -98,7 +98,14 @@ public class UsersApiController implements UsersApi {
         if (accounts.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User has no accounts");
         }
-        return new ResponseEntity<List<Account>>(accounts, HttpStatus.FOUND);
+        List<AccountResponseDTO> accountResponseDTOS = new ArrayList<>();
+        for (Account a:
+             accounts) {
+          AccountResponseDTO accountResponseDTO =  changeAccoutToAccountResponseDTO(a);
+            accountResponseDTOS.add(accountResponseDTO);
+        }
+
+        return new ResponseEntity<List<AccountResponseDTO>>(accountResponseDTOS, HttpStatus.OK);
     }
 
     public ResponseEntity<UserResponseDTO> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
@@ -191,5 +198,17 @@ public class UsersApiController implements UsersApi {
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
         String username = userAuthentication.getName();
         return userService.getUserByUsername(username);
+    }
+
+    private AccountResponseDTO changeAccoutToAccountResponseDTO(Account accountRegistered){
+
+        AccountResponseDTO accountResponseDTO = new AccountResponseDTO();
+        accountResponseDTO.setIBAN(accountRegistered.getIBAN());
+        accountResponseDTO.setAccountType(accountRegistered.getAccountType().toString());
+        accountResponseDTO.setAccountId(accountRegistered.getAccountId());
+        accountResponseDTO.setAbsoluteLimit(accountRegistered.getAbsoluteLimit());
+        accountResponseDTO.setUserId(accountRegistered.getUser().getUserId());
+        accountResponseDTO.setCurrentBalance(accountRegistered.getCurrentBalance());
+        return accountResponseDTO;
     }
 }

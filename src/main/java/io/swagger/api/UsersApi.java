@@ -89,7 +89,7 @@ public interface UsersApi {
     @RequestMapping(value = "/users/{userId}/accounts",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<Account>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
+    ResponseEntity<List<AccountResponseDTO>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId);
 
 
     @Operation(summary = "Gets data of the user", description = "By passing in the appropriate options, you can search for user data in the system ", security = {
