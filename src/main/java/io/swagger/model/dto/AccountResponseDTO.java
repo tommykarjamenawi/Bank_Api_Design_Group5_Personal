@@ -16,14 +16,16 @@ public class AccountResponseDTO {
     private String IBAN = null;
 
     @JsonProperty("accountType")
-    private AccountType accountType = null;
+    private String accountType = null;
 
     private Double absoluteLimit = null;
 
+    private Integer accountId = null;
 
-    public AccountResponseDTO userId(Account account) {
-        this.IBAN = account.getIBAN();
-        this.accountType = account.getAccountType();
-        return this;
-    }
+    private Integer userId = null;
+
+    private  Double currentBalance = null;
+
+
+
 }
