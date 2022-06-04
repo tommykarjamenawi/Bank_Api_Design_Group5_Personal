@@ -33,4 +33,7 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
     // return all transactions by Amount range == the given amount
     List<Transaction> findAllByAmountEqualsAndFromAccount(Double amount, String IBAN);
     List<Transaction> findAllByAmountEqualsAndToAccount(Double amount, String IBAN);
+
+    List<Transaction> findAllByFromAccount(String IBAN);
+    List<Transaction> findAllByToAccount(String IBAN);
 }

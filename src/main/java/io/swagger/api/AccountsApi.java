@@ -168,4 +168,27 @@ public interface AccountsApi {
             @Valid @RequestParam(value = "skip", required = true) Integer skipValue,
             @Valid @RequestParam(value = "limit", required = true) Integer limitValue);
 
+    @Operation(summary = "Gets all transactions of the account", description = "returns the transaction history ", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "transaction" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns all the transactions needed", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
+
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+
+            @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
+
+            @ApiResponse(responseCode = "404", description = "No transactions found"),
+
+            @ApiResponse(responseCode = "500", description = "Internal server error") })
+    @RequestMapping(value = "/accounts/{IBAN}/transactions/filterByAccount",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<List<TransactionResponseDTO>> getTransactionByToOrFromAccount(
+            @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema())
+            @PathVariable("IBAN") String IBAN,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "enter to or for" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "operator", required = true) String accountValue,
+            @Valid @RequestParam(value = "skip", required = true) Integer skipValue,
+            @Valid @RequestParam(value = "limit", required = true) Integer limitValue);
+
 }
