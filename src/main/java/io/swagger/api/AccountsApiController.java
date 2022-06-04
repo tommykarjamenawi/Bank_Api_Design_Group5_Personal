@@ -66,7 +66,7 @@ public class AccountsApiController implements AccountsApi {
         User user = loggedInUser();
         //receiving the account form database
         Account account = accountService.findByIBAN(IBAN);
-        // todo: add a check if they delete a current and have orphan saving accounts
+
 
         if(account.getAccountType().equals(AccountType.bank))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this bank account");
@@ -93,16 +93,16 @@ public class AccountsApiController implements AccountsApi {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
-    public ResponseEntity<Account> accountsIBANGet(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
+    public ResponseEntity<AccountResponseDTO> accountsIBANGet(@Size(min = 18, max = 18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN) {
         // getes the data of a user from the token
         User user = loggedInUser();
-//todo: make accountresponsedto
+
         //receiving the account form database
         Account account = accountService.findByIBAN(IBAN);
-
+       AccountResponseDTO accountResponseDTO = changeAccoutToAccountResponseDTO(account);
         //check if the user is owner of the account or admin(employee)
         if(user.getRoles().contains(Role.ROLE_ADMIN) || user.getAccounts().contains(account)){
-            return new ResponseEntity<Account>(account, HttpStatus.OK);
+            return new ResponseEntity<AccountResponseDTO>(accountResponseDTO, HttpStatus.OK);
         }
         else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You dont have authorization to get this account information");
@@ -214,7 +214,7 @@ public class AccountsApiController implements AccountsApi {
     }
 
     private AccountResponseDTO checkAndCreateAccount(User user ,AccountDTO body){
-// initialize object account
+       // initialize object account
         Account account = new Account();
         account.setIBAN(account.generateIBAN());
         account.setUser(userService.getUserModelById(body.getUserId()));
@@ -238,11 +238,20 @@ public class AccountsApiController implements AccountsApi {
             else
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "To make saving account first you need to make current account");
         }
+        Account accountRegistered = accountService.findByIBAN(account.getIBAN());
+
+        return changeAccoutToAccountResponseDTO(accountRegistered);
+    }
+
+    private AccountResponseDTO changeAccoutToAccountResponseDTO(Account accountRegistered){
 
         AccountResponseDTO accountResponseDTO = new AccountResponseDTO();
-        accountResponseDTO.setIBAN(account.getIBAN());
-        accountResponseDTO.setAccountType(AccountType.valueOf(body.getAccountType()));
-
+        accountResponseDTO.setIBAN(accountRegistered.getIBAN());
+        accountResponseDTO.setAccountType(accountRegistered.getAccountType().toString());
+        accountResponseDTO.setAccountId(accountRegistered.getAccountId());
+        accountResponseDTO.setAbsoluteLimit(accountRegistered.getAbsoluteLimit());
+        accountResponseDTO.setUserId(accountRegistered.getUser().getUserId());
+        accountResponseDTO.setCurrentBalance(accountRegistered.getCurrentBalance());
         return accountResponseDTO;
     }
 

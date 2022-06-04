@@ -62,7 +62,7 @@ public interface AccountsApi {
     @RequestMapping(value = "/accounts/{IBAN}",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<Account> accountsIBANGet(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN);
+    ResponseEntity<AccountResponseDTO> accountsIBANGet(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN);
 
 
     @Operation(summary = "Gets all transactions of the account", description = "returns the transaction history ", security = {

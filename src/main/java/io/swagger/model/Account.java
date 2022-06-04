@@ -30,7 +30,7 @@ public class Account{
   @JsonIgnoreProperties({"accounts"})
   private User user;
 
-  private Double currentBalance;
+  private Double currentBalance = 0.00;
   private AccountType accountType;
   private Double absoluteLimit = 0.00;
 
