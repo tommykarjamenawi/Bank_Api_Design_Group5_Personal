@@ -297,6 +297,31 @@ public class AccountsApiController implements AccountsApi {
         return new ResponseEntity<List<TransactionResponseDTO>>(transactions, HttpStatus.OK);
     }
 
+    public ResponseEntity<List<TransactionResponseDTO>> getTransactionByToOrFromAccount(
+            @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema())
+            @PathVariable("IBAN") String IBAN,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "enter 'to' or 'from'", required = true, schema = @Schema())
+            @Valid @RequestParam(value = "operator", required = true) String accountValue,
+            @Valid @RequestParam(value = "skip", required = true) Integer skipValue,
+            @Valid @RequestParam(value = "limit", required = true) Integer limitValue) {
+
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
+
+        Account userAccount = accountService.findByIBAN(IBAN);
+
+        List<TransactionResponseDTO> transactions = transactionService.getAllTransactionByToOrFromAccount(IBAN, accountValue);
+
+        transactions = transactions.stream()
+                .skip(skipValue)
+                .limit(limitValue)
+                .collect(Collectors.toList());
+        return new ResponseEntity<List<TransactionResponseDTO>>(transactions, HttpStatus.OK);
+
+    }
+
+
 }
 
 // todo: check the swaggerui contain some end point that we didnt add
