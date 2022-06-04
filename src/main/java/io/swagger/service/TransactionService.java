@@ -79,23 +79,50 @@ public class TransactionService {
             transactions.addAll(transactionRepository.getTransactionByToAccountAndTimestampBetween(iban, startDate, endDate));
           List<TransactionResponseDTO> transactionResponseDTOS = new ArrayList<>();
         for (Transaction transaction: transactions) {
-         TransactionResponseDTO tr = getTransactionResponseDTO(transaction, user);
+         TransactionResponseDTO tr = getTransactionResponseDTO(transaction);
          transactionResponseDTOS.add(tr);
         }
             return transactionResponseDTOS;
     }
 
-    public TransactionResponseDTO getTransactionResponseDTO(Transaction storeTransaction, User user) {
+    public TransactionResponseDTO getTransactionResponseDTO(Transaction storeTransaction) {
         TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
 
         transactionResponseDTO.setTransactionId(storeTransaction.getTransactionId());
-        transactionResponseDTO.setUserPerformingId(user.getUserId());
+        transactionResponseDTO.setUserPerformingId(storeTransaction.getUserPerforming().getUserId());
         transactionResponseDTO.setFromAccount(storeTransaction.getFromAccount());
         transactionResponseDTO.setToAccount(storeTransaction.getToAccount());
         transactionResponseDTO.setAmount(storeTransaction.getAmount());
         transactionResponseDTO.setTransactionType(storeTransaction.getTransactionType().toString());
         transactionResponseDTO.setTimestamp(storeTransaction.getTimestamp());
         return transactionResponseDTO;
+    }
+
+    public List<TransactionResponseDTO> getAllTransactionsByAmount(String IBAN, Double amount, String operator) {
+        List<Transaction> transactions = new ArrayList<>();
+        List<TransactionResponseDTO> transactionResponseDTOs = new ArrayList<>();
+
+        if (operator.equals("<")) {
+            transactions.addAll(transactionRepository.findAllByAmountLessThanAndFromAccount(amount, IBAN));
+            transactions.addAll(transactionRepository.findAllByAmountLessThanAndToAccount(amount, IBAN));
+        }
+
+        else if (operator.equals(">")) {
+            transactions.addAll(transactionRepository.findAllByAmountGreaterThanAndFromAccount(amount, IBAN));
+            transactions.addAll(transactionRepository.findAllByAmountGreaterThanAndToAccount(amount, IBAN));
+        }
+
+        else if (operator.equals("=")) {
+            transactions.addAll(transactionRepository.findAllByAmountEqualsAndFromAccount(amount, IBAN));
+            transactions.addAll(transactionRepository.findAllByAmountEqualsAndToAccount(amount, IBAN));
+        }
+
+        for (Transaction transaction: transactions) {
+            TransactionResponseDTO transactionResponseDTO = getTransactionResponseDTO(transaction);
+            transactionResponseDTOs.add(transactionResponseDTO);
+        }
+        // TODO:  sort the array by transactionId
+        return transactionResponseDTOs;
     }
 
 

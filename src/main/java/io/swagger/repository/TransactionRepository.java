@@ -21,4 +21,16 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
 
     //return all transactions between from date and to date
     List<Transaction> findAllByTimestampBetween(LocalDate fromDate,LocalDate toDate);
+
+    // return all transactions by Amount range greater then given amount
+    List<Transaction> findAllByAmountGreaterThanAndFromAccount(Double amount, String IBAN);
+    List<Transaction> findAllByAmountGreaterThanAndToAccount(Double amount, String iban);
+
+    // return all transactions by Amount range less than given amount
+    List<Transaction> findAllByAmountLessThanAndFromAccount(Double amount, String IBAN);
+    List<Transaction> findAllByAmountLessThanAndToAccount(Double amount, String IBAN);
+
+    // return all transactions by Amount range == the given amount
+    List<Transaction> findAllByAmountEqualsAndFromAccount(Double amount, String IBAN);
+    List<Transaction> findAllByAmountEqualsAndToAccount(Double amount, String IBAN);
 }

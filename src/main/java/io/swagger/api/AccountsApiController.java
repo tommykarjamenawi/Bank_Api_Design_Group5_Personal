@@ -114,8 +114,10 @@ public class AccountsApiController implements AccountsApi {
             @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema()) @Valid @RequestParam(value = "endDate", required = true) String endDate,
-            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "minValue", required = true) Integer minValue, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date", required = true, schema = @Schema())
-            @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "skip Value", required = true, schema = @Schema())
+            @Valid @RequestParam(value = "skip", required = true) Integer skipValue,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "limit Value", required = true, schema = @Schema())
+            @Valid @RequestParam(value = "limit", required = true) Integer limitValue) {
 
         // getes the data of a user from the token
         User user = loggedInUser();
@@ -142,8 +144,8 @@ public class AccountsApiController implements AccountsApi {
                 findAllTransactionsByIBANAccount(IBAN, startDate, endDate, user);
 
         transactions = transactions.stream()
-                .skip(minValue)
-                .limit(maxValue)
+                .skip(skipValue)
+                .limit(limitValue)
                 .collect(Collectors.toList());
         return new ResponseEntity<List<TransactionResponseDTO>>(transactions, HttpStatus.OK);
     }
@@ -260,6 +262,30 @@ public class AccountsApiController implements AccountsApi {
         accountService.createAccount(account);
 
         return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<TransactionResponseDTO>> accountsIBANTransactionsByAmountGet(
+            @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema())
+            @PathVariable("IBAN") String IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction by amount" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "amount", required = true) Double amount,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "enter operator [<, ==, >]" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "operator", required = true) String operator,
+            @Valid @RequestParam(value = "skip", required = true) Integer skipValue,
+            @Valid @RequestParam(value = "limit", required = true) Integer limitValue) {
+
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
+
+        Account userAccount = accountService.findByIBAN(IBAN);
+
+        List<TransactionResponseDTO> transactions = transactionService.getAllTransactionsByAmount(IBAN, amount, operator);
+        transactions = transactions.stream()
+                .skip(skipValue)
+                .limit(limitValue)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<List<TransactionResponseDTO>>(transactions, HttpStatus.OK);
     }
 
 }

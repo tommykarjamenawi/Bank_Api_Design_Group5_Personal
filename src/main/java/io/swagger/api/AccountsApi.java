@@ -87,8 +87,9 @@ public interface AccountsApi {
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) String endDate,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date" ,required=true,schema=@Schema())
-            @Valid @RequestParam(value = "minValue", required = true) Integer minValue,
-            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue);
+            @Valid @RequestParam(value = "skip", required = true) Integer skipValue,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "limit", required = true) Integer limitValue);
 
     @Operation(summary = "Creates a new account", description = "Creates a new account. The Iban is being generated on the server.", security = {
             @SecurityRequirement(name = "bearerAuth")    }, tags={ "employee", "customer" })
@@ -142,5 +143,29 @@ public interface AccountsApi {
             consumes = { "application/json" },
             method = RequestMethod.PUT)
     ResponseEntity<Void> updateAbsoluteLimitPost(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "IBAN of a user", required=true, schema=@Schema()) @PathVariable("IBAN") String IBAN, @Valid @RequestBody AbsoluteLimitDTO body);
+
+    @Operation(summary = "Gets all transactions of the account", description = "returns the transaction history ", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "transaction" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns all the transactions needed", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Transaction.class)))),
+
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+
+            @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
+
+            @ApiResponse(responseCode = "404", description = "No transactions found"),
+
+            @ApiResponse(responseCode = "500", description = "Internal server error") })
+    @RequestMapping(value = "/accounts/{IBAN}/transactions/byamount",
+            produces = { "application/json" },
+            method = RequestMethod.GET)
+    ResponseEntity<List<TransactionResponseDTO>> accountsIBANTransactionsByAmountGet(
+            @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema())
+            @PathVariable("IBAN") String IBAN, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction by amount" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "amount", required = true) Double amount,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "enter operator <, ==, >" ,required=true,schema=@Schema())
+            @Valid @RequestParam(value = "operator", required = true) String operator,
+            @Valid @RequestParam(value = "skip", required = true) Integer skipValue,
+            @Valid @RequestParam(value = "limit", required = true) Integer limitValue);
 
 }

@@ -63,7 +63,7 @@ public class TransactionsApiController implements TransactionsApi {
             @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
             @Parameter(in = ParameterIn.QUERY, description = "fetch transaction till end date" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "endDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate,
-            @Valid @RequestParam(value = "page", required = false, defaultValue="0") Integer fromIndex,
+            @Valid @RequestParam(value = "skip", required = false, defaultValue="0") Integer skipValue,
             @Valid @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit) {
 
 
@@ -79,7 +79,7 @@ public class TransactionsApiController implements TransactionsApi {
 
         // ask for check if limit or skip is just words
             transactions = transactions.stream()
-                    .skip(fromIndex)
+                    .skip(skipValue)
                     .limit(limit)
                     .collect(Collectors.toList());
 
@@ -133,7 +133,19 @@ public class TransactionsApiController implements TransactionsApi {
         if (fromAccount.getAccountType().equals(AccountType.bank) && user.getRoles().equals(Role.ROLE_USER)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you cannot not authorized to transfer from the bank");
         }
-// todo: check with abolute limit and check with day and transaction limit
+
+        if(body.getAmount() > fromAccount.getAbsoluteLimit()) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "you have exceeded your absolute limit!");
+        }
+
+        if (body.getAmount() > user.getDayLimit()) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "cannot transfer funds! you have exceeded your day limit");
+        }
+
+        if (body.getAmount() > user.getTransactionLimit()) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "cannot transfer funds! you have exceed your trnasction limit");
+        }
+
         if(fromAccount.getCurrentBalance() < body.getAmount()) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "insufficient balance! cannot make transaction");
         }
@@ -154,7 +166,7 @@ public class TransactionsApiController implements TransactionsApi {
 
 
        Transaction storeTransaction = transactionService.createTransaction(username, body);
-       TransactionResponseDTO transactionResponseDTO = transactionService.getTransactionResponseDTO(storeTransaction, user);
+       TransactionResponseDTO transactionResponseDTO = transactionService.getTransactionResponseDTO(storeTransaction);
        return new ResponseEntity<TransactionResponseDTO>(transactionResponseDTO, HttpStatus.OK);
     }
 
