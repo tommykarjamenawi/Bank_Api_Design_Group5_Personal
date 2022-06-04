@@ -77,7 +77,7 @@ public class TransactionsApiController implements TransactionsApi {
 
         List<Transaction> transactions = transactionService.getAllTransactions(startDate, endDate);
 
-        // ask for check if limit or skip is just words
+
             transactions = transactions.stream()
                     .skip(skipValue)
                     .limit(limitValue)
@@ -107,7 +107,6 @@ public class TransactionsApiController implements TransactionsApi {
         Account fromAccount = accountService.findByIBAN(body.getFromAccount());
         Account toAccount = accountService.findByIBAN(body.getToAccount());
 
-        // check if user is admin or user looged
         if(fromAccount.getUser()!= user) {
             if (!user.getRoles().contains(Role.ROLE_ADMIN)) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
@@ -121,7 +120,6 @@ public class TransactionsApiController implements TransactionsApi {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "You can not transfer from and to the bank to saving account");
             }
         }
-        //check if they are the same and both are current account
         if(!fromAccount.getAccountType().equals(AccountType.current) || !toAccount.getAccountType().equals(AccountType.current)) {
             if(fromAccount.getAccountType().equals(AccountType.saving) && toAccount.getAccountType().equals(AccountType.saving)){
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "you can send or receive from a saving account to a saving account");
@@ -133,7 +131,18 @@ public class TransactionsApiController implements TransactionsApi {
         if (fromAccount.getAccountType().equals(AccountType.bank) && user.getRoles().equals(Role.ROLE_USER)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you cannot not authorized to transfer from the bank");
         }
-// todo: check with abolute limit and check with day and transaction limit
+
+        if(body.getAmount() > fromAccount.getAbsoluteLimit()) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "you have exceeded your absolute limit!");
+        }
+
+        if (body.getAmount() > user.getDayLimit()) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "cannot transfer funds! you have exceeded you day limit");
+        }
+
+        if (body.getAmount() > user.getTransactionLimit()) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "cannot transfer funds! you have exceed you trnasction limit");
+        }
 
         if(fromAccount.getCurrentBalance() < body.getAmount()) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "insufficient balance! cannot make transaction");
@@ -159,6 +168,6 @@ public class TransactionsApiController implements TransactionsApi {
        return new ResponseEntity<TransactionResponseDTO>(transactionResponseDTO, HttpStatus.OK);
     }
 
-    //todo: add search transaction according the given amount user story num 14
+
 
 }

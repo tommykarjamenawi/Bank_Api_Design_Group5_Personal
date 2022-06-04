@@ -270,19 +270,23 @@ public class AccountsApiController implements AccountsApi {
             @Valid @RequestParam(value = "amount", required = true) Double amount,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "enter operator [<, ==, >]" ,required=true,schema=@Schema())
             @Valid @RequestParam(value = "operator", required = true) String operator,
-            @Valid @RequestParam(value = "minValue", required = true) Integer minValue,
-            @Valid @RequestParam(value = "maxValue", required = true) Integer maxValue) {
+            @Valid @RequestParam(value = "skip", required = true) Integer skipValue,
+            @Valid @RequestParam(value = "limit", required = true) Integer limitValue) {
+
+        Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = userAuthentication.getName();
+        User user = userService.getUserByUsername(username);
 
         Account userAccount = accountService.findByIBAN(IBAN);
 
         List<Transaction> transactions = transactionService.getAllTransactionsByAmount(IBAN, amount, operator);
         transactions = transactions.stream()
-                .skip(minValue)
-                .limit(maxValue)
+                .skip(skipValue)
+                .limit(limitValue)
                 .collect(Collectors.toList());
         return new ResponseEntity<List<Transaction>>(transactions, HttpStatus.OK);
     }
 
 }
 
-// todo: check the swaggerui contain some end point that we didnt add
+///todo: check the swaggerui contain some end point that we didnt add
