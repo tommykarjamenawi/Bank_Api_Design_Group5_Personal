@@ -28,29 +28,19 @@ public class TransactionService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private AccountRepository accountRepository;
 
-    public List<Transaction> getAllTransactions(String startdate,String enddate) {
-
-        LocalDate startDate;
-        LocalDate endDate;
-        try{
-            // convert startDate and endDate to LocalDateTime object
-            startDate = LocalDate.parse(startdate);
-            endDate = LocalDate.parse(enddate);
-        }catch (Exception ex){
-            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "date needs to be in yyyy-MM-dd");
-        }
-
-        return transactionRepository.findAllByTimestampBetween(startDate, endDate);
+    public List<Transaction> getAllTransactions(LocalDate startdate,LocalDate enddate) {
+        return transactionRepository.findAllByTimestampBetween(startdate, enddate);
     }
-
 
     public Transaction createTransaction(String username, TransactionDTO body) throws Exception {
 
         User user = userRepository.findByUsername(username);
+        Transaction transaction = convertDTOToTransactionEntity(body, user);
+        return transactionRepository.save(transaction);
+    }
 
+    public Transaction convertDTOToTransactionEntity(TransactionDTO body, User user) {
         Transaction transaction = new Transaction();
         transaction.setTransactionType(TransactionType.valueOf(body.getTransactionType().toLowerCase()));
         transaction.setFromAccount(body.getFromAccount());
@@ -58,36 +48,28 @@ public class TransactionService {
         transaction.setAmount(body.getAmount());
         transaction.setTimestamp(LocalDate.now());
         transaction.setUserPerforming(user);
-
-        return transactionRepository.save(transaction);
+        return transaction;
     }
 
-    public List<TransactionResponseDTO>  findAllTransactionsByIBANAccount(String iban, String datefrom, String dateto, User user) {
+    public List<TransactionResponseDTO>  findAllTransactionsByIBANAccount(String iban, LocalDate datefrom, LocalDate dateto) {
 
         List<Transaction> transactions = new ArrayList<>();
-        LocalDate startDate;
-        LocalDate endDate;
+        List<TransactionResponseDTO> transactionResponseDTOList = new ArrayList<>();
 
-        try {
-            startDate = LocalDate.parse(datefrom);
-            endDate = LocalDate.parse(dateto);
-        }
-        catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Invalid date format, needs to be in yyyy-MM-dd");
-        }
-            transactions.addAll(transactionRepository.getTransactionByFromAccountAndTimestampBetween(iban, startDate, endDate));
-            transactions.addAll(transactionRepository.getTransactionByToAccountAndTimestampBetween(iban, startDate, endDate));
-          List<TransactionResponseDTO> transactionResponseDTOS = new ArrayList<>();
+        transactions.addAll(transactionRepository.getTransactionByFromAccountAndTimestampBetween(iban, datefrom, dateto));
+        transactions.addAll(transactionRepository.getTransactionByToAccountAndTimestampBetween(iban, datefrom, dateto));
+
         for (Transaction transaction: transactions) {
-         TransactionResponseDTO tr = getTransactionResponseDTO(transaction);
-         transactionResponseDTOS.add(tr);
+             TransactionResponseDTO transactionResponseDTO = convertTransactionEntityToTransactionResponseDTO(transaction);
+             transactionResponseDTOList.add(transactionResponseDTO);
         }
-            return transactionResponseDTOS;
+
+        return transactionResponseDTOList;
     }
 
-    public TransactionResponseDTO getTransactionResponseDTO(Transaction storeTransaction) {
-        TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
+    public TransactionResponseDTO convertTransactionEntityToTransactionResponseDTO(Transaction storeTransaction) {
 
+        TransactionResponseDTO transactionResponseDTO = new TransactionResponseDTO();
         transactionResponseDTO.setTransactionId(storeTransaction.getTransactionId());
         transactionResponseDTO.setUserPerformingId(storeTransaction.getUserPerforming().getUserId());
         transactionResponseDTO.setFromAccount(storeTransaction.getFromAccount());
@@ -98,51 +80,71 @@ public class TransactionService {
         return transactionResponseDTO;
     }
 
-    public List<TransactionResponseDTO> getAllTransactionsByAmount(String IBAN, Double amount, String operator) {
+    public List<TransactionResponseDTO> findAllTransactionsLessThanAmount(String IBAN, Double amount) {
         List<Transaction> transactions = new ArrayList<>();
-        List<TransactionResponseDTO> transactionResponseDTOs = new ArrayList<>();
+        List<TransactionResponseDTO> transactionResponseDTOS = new ArrayList<>();
 
-        if (operator.equals("<")) {
-            transactions.addAll(transactionRepository.findAllByAmountLessThanAndFromAccount(amount, IBAN));
-            transactions.addAll(transactionRepository.findAllByAmountLessThanAndToAccount(amount, IBAN));
-        }
-
-        else if (operator.equals(">")) {
-            transactions.addAll(transactionRepository.findAllByAmountGreaterThanAndFromAccount(amount, IBAN));
-            transactions.addAll(transactionRepository.findAllByAmountGreaterThanAndToAccount(amount, IBAN));
-        }
-
-        else if (operator.equals("=")) {
-            transactions.addAll(transactionRepository.findAllByAmountEqualsAndFromAccount(amount, IBAN));
-            transactions.addAll(transactionRepository.findAllByAmountEqualsAndToAccount(amount, IBAN));
-        }
+        transactions.addAll(transactionRepository.findAllByAmountLessThanAndFromAccount(amount, IBAN));
+        transactions.addAll(transactionRepository.findAllByAmountLessThanAndToAccount(amount, IBAN));
 
         for (Transaction transaction: transactions) {
-            TransactionResponseDTO transactionResponseDTO = getTransactionResponseDTO(transaction);
-            transactionResponseDTOs.add(transactionResponseDTO);
+            TransactionResponseDTO transactionResponseDTO = convertTransactionEntityToTransactionResponseDTO(transaction);
+            transactionResponseDTOS.add(transactionResponseDTO);
         }
-        // TODO:  sort the array by transactionId
-        return transactionResponseDTOs;
+        return transactionResponseDTOS;
     }
 
-    public List<TransactionResponseDTO> getAllTransactionByToOrFromAccount(String IBAN, String accountValue) {
-
+    public List<TransactionResponseDTO> findAllTransactionsGreaterThanAmount(String IBAN, Double amount) {
         List<Transaction> transactions = new ArrayList<>();
-        List<TransactionResponseDTO> transactionResponseDTOList = new ArrayList<>();
-        if (accountValue.equals("from")) {
-            transactions.addAll(transactionRepository.findAllByFromAccount(IBAN));
-        }
-        else if (accountValue.equals("to")) {
-            transactions.addAll(transactionRepository.findAllByToAccount(IBAN));
-        }
+        List<TransactionResponseDTO> transactionResponseDTOS = new ArrayList<>();
+
+        transactions.addAll(transactionRepository.findAllByAmountGreaterThanAndFromAccount(amount, IBAN));
+        transactions.addAll(transactionRepository.findAllByAmountGreaterThanAndToAccount(amount, IBAN));
 
         for (Transaction transaction: transactions) {
-            TransactionResponseDTO transactionResponseDTO = getTransactionResponseDTO(transaction);
-            transactionResponseDTOList.add(transactionResponseDTO);
+            TransactionResponseDTO transactionResponseDTO = convertTransactionEntityToTransactionResponseDTO(transaction);
+            transactionResponseDTOS.add(transactionResponseDTO);
         }
-        return transactionResponseDTOList;
+        return transactionResponseDTOS;
     }
 
+    public List<TransactionResponseDTO> findAllTransactionEqualToAmount(String IBAN, Double amount) {
+        List<Transaction> transactions = new ArrayList<>();
+        List<TransactionResponseDTO> transactionResponseDTOS = new ArrayList<>();
 
+        transactions.addAll(transactionRepository.findAllByAmountEqualsAndFromAccount(amount, IBAN));
+        transactions.addAll(transactionRepository.findAllByAmountEqualsAndToAccount(amount, IBAN));
 
+        for (Transaction transaction: transactions) {
+            TransactionResponseDTO transactionResponseDTO = convertTransactionEntityToTransactionResponseDTO(transaction);
+            transactionResponseDTOS.add(transactionResponseDTO);
+        }
+        return transactionResponseDTOS;
+    }
+
+    public List<TransactionResponseDTO> findAllTransactionsByFromAccount(String IBAN) {
+        List<Transaction> transactions = new ArrayList<>();
+        List<TransactionResponseDTO> transactionResponseDTOS = new ArrayList<>();
+
+        transactions.addAll(transactionRepository.findAllByFromAccount(IBAN));
+
+        for (Transaction transaction: transactions) {
+            TransactionResponseDTO transactionResponseDTO = convertTransactionEntityToTransactionResponseDTO(transaction);
+            transactionResponseDTOS.add(transactionResponseDTO);
+        }
+        return transactionResponseDTOS;
+    }
+
+    public List<TransactionResponseDTO> findAllTransactionByToAccount(String IBAN) {
+         List<Transaction> transactions = new ArrayList<>();
+         List<TransactionResponseDTO> transactionResponseDTOS = new ArrayList<>();
+
+         transactions.addAll(transactionRepository.findAllByToAccount(IBAN));
+
+         for (Transaction transaction: transactions) {
+              TransactionResponseDTO transactionResponseDTO = convertTransactionEntityToTransactionResponseDTO(transaction);
+              transactionResponseDTOS.add(transactionResponseDTO);
+         }
+         return transactionResponseDTOS;
+    }
 }

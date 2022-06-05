@@ -109,7 +109,7 @@ public class AccountsApiController implements AccountsApi {
 
     }
 
-    // todo: check a senario for bank
+
     public ResponseEntity<List<TransactionResponseDTO>> accountsIBANTransactionsGet(
             @Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("IBAN") String IBAN,
             @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch transaction from start date", required = true, schema = @Schema()) @Valid @RequestParam(value = "startDate", required = true) String startDate,
@@ -122,8 +122,8 @@ public class AccountsApiController implements AccountsApi {
         // getes the data of a user from the token
         User user = loggedInUser();
 
-        if (startDate == null || endDate == null) {
-            if (startDate == null && endDate == null) {
+        if (startDate.equals(null) || endDate.equals(null)) {
+            if (startDate.equals(null) && endDate.equals(null)) {
                 LocalDate startdate = LocalDate.now();
                 LocalDate enddate = LocalDate.now();
             }
@@ -139,9 +139,18 @@ public class AccountsApiController implements AccountsApi {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not authorized to see this transaction");
             }
         }
+        LocalDate startdate;
+        LocalDate enddate;
+        try {
+            startdate = LocalDate.parse(startDate);
+            enddate = LocalDate.parse(endDate);
+        }
+        catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Invalid date format, needs to be in yyyy-MM-dd");
+        }
 
         List<TransactionResponseDTO> transactions = transactionService.
-                findAllTransactionsByIBANAccount(IBAN, startDate, endDate, user);
+                findAllTransactionsByIBANAccount(IBAN, startdate, enddate);
 
         transactions = transactions.stream()
                 .skip(skipValue)
@@ -288,12 +297,22 @@ public class AccountsApiController implements AccountsApi {
 
         Account userAccount = accountService.findByIBAN(IBAN);
 
-        List<TransactionResponseDTO> transactions = transactionService.getAllTransactionsByAmount(IBAN, amount, operator);
+        List<TransactionResponseDTO> transactions = new ArrayList<>();
+
+        if (operator.equals("<")) {
+            transactions = transactionService.findAllTransactionsLessThanAmount(IBAN, amount);
+        }
+        else if (operator.equals(">")) {
+            transactions = transactionService.findAllTransactionsGreaterThanAmount(IBAN, amount);
+        }
+        else if (operator.equals("=")) {
+            transactions = transactionService.findAllTransactionEqualToAmount(IBAN, amount);
+        }
+
         transactions = transactions.stream()
                 .skip(skipValue)
                 .limit(limitValue)
                 .collect(Collectors.toList());
-
         return new ResponseEntity<List<TransactionResponseDTO>>(transactions, HttpStatus.OK);
     }
 
@@ -310,13 +329,24 @@ public class AccountsApiController implements AccountsApi {
         User user = userService.getUserByUsername(username);
 
         Account userAccount = accountService.findByIBAN(IBAN);
+        List<TransactionResponseDTO> transactions = new ArrayList<>();
 
-        List<TransactionResponseDTO> transactions = transactionService.getAllTransactionByToOrFromAccount(IBAN, accountValue);
+        if (accountValue.equals("from")) {
+            transactions = transactionService.findAllTransactionsByFromAccount(IBAN);
+        }
+        else if (accountValue.equals("to")) {
+            transactions = transactionService.findAllTransactionByToAccount(IBAN);
+        }
+        else {
+            transactions = transactionService.findAllTransactionsByFromAccount(IBAN);
+            transactions = transactionService.findAllTransactionByToAccount(IBAN);
+        }
 
         transactions = transactions.stream()
                 .skip(skipValue)
                 .limit(limitValue)
                 .collect(Collectors.toList());
+
         return new ResponseEntity<List<TransactionResponseDTO>>(transactions, HttpStatus.OK);
 
     }

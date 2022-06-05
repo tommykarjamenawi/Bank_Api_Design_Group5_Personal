@@ -74,10 +74,17 @@ public class TransactionsApiController implements TransactionsApi {
         if(!user.getRoles().contains(Role.ROLE_ADMIN)){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not authorized to acces this list");
         }
+        LocalDate startdate;
+        LocalDate enddate;
+        try{
+            startdate = LocalDate.parse(startDate);
+            enddate = LocalDate.parse(endDate);
+        }catch (Exception ex){
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "date needs to be in yyyy-MM-dd");
+        }
 
-        List<Transaction> transactions = transactionService.getAllTransactions(startDate, endDate);
+        List<Transaction> transactions = transactionService.getAllTransactions(startdate, enddate);
 
-        // ask for check if limit or skip is just words
             transactions = transactions.stream()
                     .skip(skipValue)
                     .limit(limit)
@@ -90,10 +97,10 @@ public class TransactionsApiController implements TransactionsApi {
             @Parameter(in = ParameterIn.DEFAULT, description = "", schema=@Schema())
             @Valid @RequestBody TransactionDTO body) throws Exception {
 
-        if (body.getFromAccount() == null ||
-                body.getToAccount() == null ||
-                body.getTransactionType() == null ||
-                body.getAmount() == null) {
+        if (body.getFromAccount().equals(null) ||
+                body.getToAccount().equals(null) ||
+                body.getTransactionType().equals(null) ||
+                body.getAmount().equals(null)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One of input parameters is null");
         }
 
@@ -107,7 +114,7 @@ public class TransactionsApiController implements TransactionsApi {
         Account fromAccount = accountService.findByIBAN(body.getFromAccount());
         Account toAccount = accountService.findByIBAN(body.getToAccount());
 
-        // check if user is admin or user looged
+
         if(fromAccount.getUser()!= user) {
             if (!user.getRoles().contains(Role.ROLE_ADMIN)) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this account does not belong to you");
@@ -121,7 +128,7 @@ public class TransactionsApiController implements TransactionsApi {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "You can not transfer from and to the bank to saving account");
             }
         }
-        //check if they are the same and both are current account
+
         if(!fromAccount.getAccountType().equals(AccountType.current) || !toAccount.getAccountType().equals(AccountType.current)) {
             if(fromAccount.getAccountType().equals(AccountType.saving) && toAccount.getAccountType().equals(AccountType.saving)){
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "you can send or receive from a saving account to a saving account");
@@ -154,8 +161,6 @@ public class TransactionsApiController implements TransactionsApi {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "amount to be transferred needs to be greater than zero");
         }
 
-
-
         Double deductBalanceAfterTransaction = fromAccount.getCurrentBalance() - body.getAmount();
         fromAccount.setCurrentBalance(deductBalanceAfterTransaction);
         accountService.createAccount(fromAccount);
@@ -166,10 +171,9 @@ public class TransactionsApiController implements TransactionsApi {
 
 
        Transaction storeTransaction = transactionService.createTransaction(username, body);
-       TransactionResponseDTO transactionResponseDTO = transactionService.getTransactionResponseDTO(storeTransaction);
+       TransactionResponseDTO transactionResponseDTO = transactionService.convertTransactionEntityToTransactionResponseDTO(storeTransaction);
        return new ResponseEntity<TransactionResponseDTO>(transactionResponseDTO, HttpStatus.OK);
     }
 
-    //todo: add search transaction according the given amount user story num 14
 
 }
