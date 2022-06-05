@@ -36,7 +36,7 @@ public class MyApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception{
         // Create 1 Employee and 1 Customer
         User firstUser = userService.createUser("biniam12", "biniam mehari", "secret", 1);
-        User user2 = userService.createUser("tommy12", "tommy king", "secret", 0);
+        User user2 = userService.createUser("tommy12", "tommy king", "secret", 1);
         User user3 = userService.createUser("tommy13", "tommy king", "secret", 0);
         // create a list of user
         List<User> users = new ArrayList<>(Arrays.asList(firstUser, user2,user3));

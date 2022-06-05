@@ -2,6 +2,7 @@ package io.swagger.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.model.Account;
+
 import java.math.BigDecimal;
 
 import io.swagger.model.Role;
@@ -29,6 +30,7 @@ import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-13T15:15:19.174Z[GMT]")
@@ -55,7 +57,7 @@ public class UsersApiController implements UsersApi {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponseDTO>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) Integer withOutAccount) {
+    public ResponseEntity<List<UserResponseDTO>> usersGet(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users", required = true, schema = @Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users", required = true, schema = @Schema()) @Valid @RequestParam(value = "limit", required = true) Integer limit, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the users with or with out account", required = true, schema = @Schema()) @Valid @RequestParam(value = "withOutAccount", required = true) Integer withOutAccount) {
         // convert List<User> to List<UserResponseDTO>
         List<UserResponseDTO> userResponseDTOS = userService.convertUsersToUserResponseDTO(userService.getAllUsers(skip, limit, withOutAccount));
         if (userResponseDTOS.isEmpty()) {
@@ -64,22 +66,22 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<List<UserResponseDTO>>(userResponseDTOS, HttpStatus.OK);
     }
 
-    public LoginResponseDTO usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required=true, schema=@Schema()) @Valid @RequestBody LoginDTO body) {
+    public LoginResponseDTO usersLoginPost(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", required = true, schema = @Schema()) @Valid @RequestBody LoginDTO body) {
         LoginResponseDTO responseDTO = new LoginResponseDTO();
         responseDTO.setToken(userService.login(body.getUsername(), body.getPassword()));
         return responseDTO;
     }
 
-    public ResponseEntity<UserResponseDTO> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "User to add", schema=@Schema()) @Valid @RequestBody UserDTO body) {
+    public ResponseEntity<UserResponseDTO> usersPost(@Parameter(in = ParameterIn.DEFAULT, description = "User to add", schema = @Schema()) @Valid @RequestBody UserDTO body) {
         UserResponseDTO userResponseDTO = userService.addExternalUser(body);
         if (userResponseDTO == null) {
             // user already exists
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "User already exists");
         }
-        return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.CREATED);
+        return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.OK);
     }
 
-    public ResponseEntity<List<AccountResponseDTO>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
+    public ResponseEntity<List<AccountResponseDTO>> usersUserIdAccountsGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("userId") Integer userId) {
         // logged in user from authentication
         User logedInUser = loggedInUser();
 
@@ -99,16 +101,16 @@ public class UsersApiController implements UsersApi {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User has no accounts");
         }
         List<AccountResponseDTO> accountResponseDTOS = new ArrayList<>();
-        for (Account a:
-             accounts) {
-          AccountResponseDTO accountResponseDTO =  changeAccoutToAccountResponseDTO(a);
+        for (Account a :
+                accounts) {
+            AccountResponseDTO accountResponseDTO = changeAccoutToAccountResponseDTO(a);
             accountResponseDTOS.add(accountResponseDTO);
         }
 
         return new ResponseEntity<List<AccountResponseDTO>>(accountResponseDTOS, HttpStatus.OK);
     }
 
-    public ResponseEntity<UserResponseDTO> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
+    public ResponseEntity<UserResponseDTO> usersUserIdGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("userId") Integer userId) {
         // logged in user from authentication
         User logedInUser = loggedInUser();
 
@@ -120,15 +122,14 @@ public class UsersApiController implements UsersApi {
         if (userResponseDTO == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
         }
-        return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.FOUND);
+        return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.OK);
     }
 
-    public ResponseEntity<UserTotalBalanceResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId) {
+    public ResponseEntity<UserTotalBalanceResponseDTO> usersUserIdTotalBalanceGet(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required = true, schema = @Schema()) @PathVariable("userId") Integer userId) {
         // logged in user from authentication
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
         String username = userAuthentication.getName();
         User logedInUser = userService.getUserByUsername(username);
-        //User logedInUser = loggedInUser();
 
         if (!logedInUser.getRoles().contains(Role.ROLE_ADMIN) && logedInUser.getUserId() != userId) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to get information of other users");
@@ -154,45 +155,32 @@ public class UsersApiController implements UsersApi {
         return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> updateDayAndTransactionLimitPost(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Valid @RequestBody UpdateDayAndTransactionLimitDTO body) {
-
+    public ResponseEntity<Void> updateUserDetails(@Parameter(in = ParameterIn.PATH, description = "userId of updated user", required = true, schema = @Schema()) @PathVariable("userId") Integer userId, @Valid @RequestBody UserUpdateDTO body) {
         User logedInUser = loggedInUser();
-        if(!logedInUser.getRoles().contains(Role.ROLE_ADMIN)){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you dont have access");
-        }
         // get user from userId
         User user = userService.getUserModelById(userId);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
         }
-        user.setDayLimit(body.getDayLimit());
-        user.setTransactionLimit(body.getTransactionLimit());
-        user.setRemainingDayLimit(body.getTransactionLimit());
-        userService.UpdateUserdayAndTransactionLimit(user);
+        // User/Employee can change different fields
+        if (logedInUser.getRoles().contains(Role.ROLE_ADMIN) && logedInUser.getUserId() != user.getUserId()) {
+            if (body.getDayLimit() != user.getDayLimit()) {user.setDayLimit(body.getDayLimit());}
+            if (body.getTransactionLimit() != user.getTransactionLimit()) { user.setTransactionLimit(body.getTransactionLimit());}
+            if (body.getCreateEmployee() == 1) {user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER, Role.ROLE_ADMIN)));}
+            if (body.getCreateEmployee() == 0) {user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));}
+        } else {
+            if (body.getFullname() != user.getFullname()) {user.setFullname(body.getFullname());}
+            if (body.getPassword() != "") {user.setPassword(userService.encryptPassword(body.getPassword()));}
+            if (logedInUser.getRoles().contains(Role.ROLE_ADMIN)){
+                if (body.getDayLimit() != user.getDayLimit()) {user.setDayLimit(body.getDayLimit());}
+                if (body.getTransactionLimit() != user.getTransactionLimit()) { user.setTransactionLimit(body.getTransactionLimit());}
+                if (body.getCreateEmployee() == 1) {user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER, Role.ROLE_ADMIN)));}
+                if (body.getCreateEmployee() == 0) {user.setRoles(new ArrayList<>(Arrays.asList(Role.ROLE_USER)));}
+            }
+        }
+        userService.updateUser(user);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
-
-
-
-//    public ResponseEntity<UserResponseDTO> usersUserIdPut(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to update", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Parameter(in = ParameterIn.DEFAULT, description = "User to update", schema=@Schema()) @Valid @RequestBody UserDTO body) {
-//        // logged in user from authentication
-//        User logedInUser = loggedInUser();
-//
-//        // check if user.getRoles() size is 2
-//        if (!logedInUser.getRoles().contains(Role.ROLE_ADMIN) && logedInUser.getUserId() != userId) {
-//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to update information of other users");
-//        }
-//
-//        User user = userService.getUserModelById(userId);
-//        if (user == null) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User does not exist");
-//        }
-//        UserResponseDTO userResponseDTO = userService.updateUser(user, body);
-//        if (userResponseDTO == null) {
-//            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "User already exists");
-//        }
-//        return new ResponseEntity<UserResponseDTO>(userResponseDTO, HttpStatus.OK);
-//    }
 
     public User loggedInUser() {
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
@@ -200,8 +188,7 @@ public class UsersApiController implements UsersApi {
         return userService.getUserByUsername(username);
     }
 
-    private AccountResponseDTO changeAccoutToAccountResponseDTO(Account accountRegistered){
-
+    private AccountResponseDTO changeAccoutToAccountResponseDTO(Account accountRegistered) {
         AccountResponseDTO accountResponseDTO = new AccountResponseDTO();
         accountResponseDTO.setIBAN(accountRegistered.getIBAN());
         accountResponseDTO.setAccountType(accountRegistered.getAccountType().toString());

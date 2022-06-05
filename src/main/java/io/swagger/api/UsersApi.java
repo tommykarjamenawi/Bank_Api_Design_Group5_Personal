@@ -141,8 +141,8 @@ public interface UsersApi {
     ResponseEntity<UserResponseDTO> loggedInUserGet();
 
 
-    @Operation(summary = "Set Day and transaction Limit", description = "updates the day and transaction limit for a user", security = {
-            @SecurityRequirement(name = "bearerAuth")    }, tags={ "employee"})
+    @Operation(summary = "update user details", description = "updates the day and transaction limit for a user", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={"customer", "employee"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Day and Transaction limit updated"),
 
@@ -150,12 +150,9 @@ public interface UsersApi {
 
             @ApiResponse(responseCode = "401", description = "Access token is missing or invalid"),
 
-            @ApiResponse(responseCode = "404", description = "user not found"),
-
-            @ApiResponse(responseCode = "500", description = "Internal server error") })
+            @ApiResponse(responseCode = "404", description = "user not found") })
     @RequestMapping(value = "/users/{userId}",
             consumes = { "application/json" },
             method = RequestMethod.PUT)
-    ResponseEntity<Void> updateDayAndTransactionLimitPost(@Parameter(in = ParameterIn.PATH, description = "Numeric ID of the user to get", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Valid @RequestBody UpdateDayAndTransactionLimitDTO body);
-
+    ResponseEntity<Void> updateUserDetails(@Parameter(in = ParameterIn.PATH, description = "userId of updated user", required=true, schema=@Schema()) @PathVariable("userId") Integer userId, @Valid @RequestBody UserUpdateDTO body);
 }

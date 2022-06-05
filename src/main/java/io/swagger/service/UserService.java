@@ -154,7 +154,11 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public void UpdateUserdayAndTransactionLimit(User user){
+    public void updateUser(User user){
         userRepository.save(user);
+    }
+
+    public String encryptPassword(String password) {
+        return passwordEncoder.encode(password);
     }
 }
