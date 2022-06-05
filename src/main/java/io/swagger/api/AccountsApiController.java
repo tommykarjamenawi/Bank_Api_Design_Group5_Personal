@@ -171,7 +171,7 @@ public class AccountsApiController implements AccountsApi {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not make account for this user");
 
 
-        return new ResponseEntity<AccountResponseDTO>(accountResponseDTO, HttpStatus.CREATED);
+        return new ResponseEntity<AccountResponseDTO>(accountResponseDTO, HttpStatus.OK);
     }
 
     public ResponseEntity<List<Account>> getAccounts(@NotNull @Parameter(in = ParameterIn.QUERY, description = "skips the list of users", required = true, schema = @Schema()) @Valid @RequestParam(value = "skip", required = true) Integer skip, @NotNull @Parameter(in = ParameterIn.QUERY, description = "fetch the needed amount of users", required = false, schema = @Schema()) @Valid @RequestParam(value = "limit", required = false) Integer limit) {
