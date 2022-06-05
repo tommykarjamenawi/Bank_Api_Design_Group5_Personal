@@ -125,6 +125,24 @@ public class TransactionService {
         return transactionResponseDTOs;
     }
 
+    public List<TransactionResponseDTO> getAllTransactionByToOrFromAccount(String IBAN, String accountValue) {
+
+        List<Transaction> transactions = new ArrayList<>();
+        List<TransactionResponseDTO> transactionResponseDTOList = new ArrayList<>();
+        if (accountValue.equals("from")) {
+            transactions.addAll(transactionRepository.findAllByFromAccount(IBAN));
+        }
+        else if (accountValue.equals("to")) {
+            transactions.addAll(transactionRepository.findAllByToAccount(IBAN));
+        }
+
+        for (Transaction transaction: transactions) {
+            TransactionResponseDTO transactionResponseDTO = getTransactionResponseDTO(transaction);
+            transactionResponseDTOList.add(transactionResponseDTO);
+        }
+        return transactionResponseDTOList;
+    }
+
 
 
 }
